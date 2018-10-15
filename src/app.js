@@ -26,8 +26,8 @@ class App extends Component {
       navigationBarTextStyle: 'black'
     },
     pages: [
-      'pages/my_task/index',
       'pages/team_task/index',
+      'pages/my_task/index',
       'pages/account/index',
 
       'pages/account/info/index',

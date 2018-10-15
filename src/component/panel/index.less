@@ -1,8 +1,136 @@
-@import '../../less/variable.less';
+@import '../../less/mixin.less';
 
 .panel {
   position: relative;
   padding: 64px 32px;
-  background: @primary;
+
+  &-body {
+    display: flex;
+    justify-content: space-between;
+
+    .h1 {
+      line-height: 1.15;
+      display: flex;
+      min-width: 0;
+      font-size: 48px;
+      font-weight: 500;
+      margin-bottom: 32px;
+
+      text {
+        .text-overflow();
+      }
+    }
+
+    .extra {
+      font-size: 26px;
+    }
+  }
+
+  &-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  &-footer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: 0 23px;
+    bottom: -48px;
+    display: flex;
+    justify-content: space-between;
+    z-index: 10;
+  }
+
+  &-has-footer {
+    padding-bottom: 120px;
+  }
+
+  &-has-avatar {
+    .panel-right {
+      justify-content: flex-start;
+    }
+  }
+
+  &-card {
+    height: 128px;
+    border-radius: 8px;
+    background: #fff;
+    position: relative;
+    flex-grow: 1;
+    margin: 0 9px;
+    padding: 16px 20px 0;
+    color: #fff;
+    line-height: 1;
+    box-sizing: border-box;
+
+    &-label {
+      font-size: 28px;
+      width: 100%;
+      text-align: center;
+
+      .text-overflow();
+
+      &:before {
+        vertical-align: -4px;
+        content: '';
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        margin-right: 8px;
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-position: center center;
+      }
+    }
+
+    &-value {
+      font-size: 56px;
+      font-weight: 500;
+      width: 100%;
+      text-align: center;
+      margin-bottom: 10px;
+
+      .text-overflow();
+    }
+
+    &-progress {
+      background:linear-gradient(360deg,rgba(123,241,67,1) 0%,rgba(9,190,24,1) 100%);
+      box-shadow:0px 4px 14px 0px rgba(9,190,24,0.34);
+
+      .panel-card-label:before {
+        background-image: url('../../asset/img/progress_light.png');
+      }
+    }
+
+    &-fail {
+      background:linear-gradient(360deg,rgba(255,203,91,1) 0%,rgba(243,143,12,1) 100%);
+      box-shadow:0px 4px 14px 0px rgba(243,143,13,0.34);
+
+      .panel-card-label:before {
+        background-image: url('../../asset/img/delay_light.png');
+      }
+    }
+
+    &-success {
+      background:linear-gradient(360deg,rgba(110,192,255,1) 0%,rgba(37,122,255,1) 100%);
+      box-shadow:0px 4px 14px 0px rgba(37,122,255,0.34);
+
+      .panel-card-label:before {
+        background-image: url('../../asset/img/complete_light.png');
+      }
+    }
+  }
+}
+
+.panel-dark {
+  background: linear-gradient(to bottom, rgba(37,122,255,1) 0%,rgba(67,91,210,1) 100%);
   color: #fff;
+
+  .panel-body {
+    .extra {
+      color: #81B1FF;
+    }
+  }
 }

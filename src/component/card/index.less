@@ -1,0 +1,112 @@
+@import '../../less/mixin.less';
+
+.card {
+  box-shadow:0px 4px 14px 0px rgba(230,232,235,1);
+  border-radius:6px;
+  background: #fff;
+  padding: 28px 24px 20px;
+  display: flex;
+  margin: 36px 0;
+
+  &-left {
+    flex-shrink: 0;
+    min-width: 0;
+  }
+
+  &-left {
+    margin-right: 12px;
+    padding-top: 8px;
+  }
+
+  &-content {
+    flex-grow: 1;
+    min-width: 0;
+  }
+
+  &-extra {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-width: 0;
+  }
+
+  &-status {
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background-color: #ddd;
+  }
+
+  &-title {
+    color: #363636;
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 1.15;
+    margin-bottom: 14px;
+
+    .text-overflow();
+  }
+
+  &-project {
+    color: #8D8D8D;
+    font-size: 26px;
+
+    .text-overflow();
+  }
+
+  &-date {
+    margin-left: 20px;
+    font-size: 26px;
+    color: #8D8D8D;
+    flex-shrink: 0;
+
+    &:before {
+      vertical-align: -4px;
+      content: '';
+      display: inline-block;
+      width: 32px;
+      height: 32px;
+      margin-right: 8px;
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-position: center center;
+    }
+  }
+
+  &-progress {
+    .card-status {
+      background-color: #09BF19;
+    }
+
+    .card-date:before {
+      background-image: url('../../asset/img/progress.png');
+    }
+  }
+
+  &-fail {
+    .card-status {
+      background-color: #F38F0C;
+    }
+
+    .card-date:before {
+      background-image: url('../../asset/img/delay.png');
+    }
+  }
+
+  &-success {
+
+    .card-title,
+    .card-project,
+    .card-date {
+      color: #8D8D8D;
+    }
+
+    .card-status {
+      background-color: #257AFF;
+    }
+
+    .card-date:before {
+      background-image: url('../../asset/img/complete.png');
+    }
+  }
+}

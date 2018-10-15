@@ -1,0 +1,34 @@
+@import '../../less/variable.less';
+@import '../../less/mixin.less';
+
+.sort {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 36px;
+  min-height: 68px;
+
+  &-content {
+    color: #8D8D8D;
+    font-size: 26px;
+    min-width: 0;
+
+    .text-overflow();
+
+    &:after {
+      content: '';
+      display: inline-block;
+      vertical-align: 5px;
+      width: 0;
+      height: 0;
+      border-right: 10px solid transparent;
+      border-left: 10px solid transparent;
+      border-top: 10px solid @primary;
+      margin-left: 14px;
+    }
+  }
+
+  &-right {
+    flex-shrink: 0;
+  }
+}

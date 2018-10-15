@@ -1,0 +1,55 @@
+@import '../../../less/mixin.less';
+
+.item {
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  min-height: 100px;
+  transition: background-color .2s;
+
+  &:active {
+    background-color: #eee;
+  }
+
+  &-left {
+    min-width: 0;
+    flex-shrink: 0;
+    margin-right: 20px;
+  }
+
+  &-content {
+    min-width: 0;
+    flex-grow: 1;
+    font-size: 32px;
+    color: #000;
+
+    .text-overflow();
+  }
+
+  &-right {
+    margin-left: 20px;
+    min-width: 0;
+    flex-shrink: 0;
+  }
+
+  &-icon {
+    width: 44px;
+    height: 44px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center center;
+
+    &-i { background-image: url('../../../asset/img/i.png'); }
+    &-team { background-image: url('../../../asset/img/team.png'); }
+    &-notice { background-image: url('../../../asset/img/notice.png'); }
+  }
+
+  &-arrow {
+    width: 40px;
+    height: 40px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center center;
+    background-image: url('../../../asset/img/arrow.png');
+  }
+}

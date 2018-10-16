@@ -54,7 +54,7 @@ const config = {
         url: {
           enable: true,
           config: {
-            limit: 1024000 // 设定转换尺寸上限
+            limit: 902400 // 设定转换尺寸上限
           }
         }
       }

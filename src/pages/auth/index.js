@@ -9,6 +9,8 @@ import { showToast } from '../../util/wx'
 
 import { login } from '../../model/user'
 
+import brand from '../../asset/img/logo.png'
+
 import './index.less'
 
 @connect(state => ({
@@ -36,7 +38,7 @@ export default class Page extends Component {
   render () {
     return (
       <Layout padding = { [0, 112] }>
-        <View className = 'brand' />
+        <View className = 'brand' style = { { backgroundImage: `url(${ brand })` } } />
 
         <View className = 'title'>
           <Text>使用凸度前\n请先获取微信授权</Text>

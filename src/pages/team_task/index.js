@@ -1,13 +1,15 @@
 import Taro, { Component } from '@tarojs/taro'
-import { View, Button, Text, Textarea } from '@tarojs/components'
+import { View, Button, Input, Text, Textarea } from '@tarojs/components'
 
 import cs from 'classnames'
 
 import Layout from '../../component/layout'
 import Panel from '../../component/panel'
 import Sort from '../../component/sort'
-import Card from '../../component/card'
+import Card from '../../component/card/taskCard'
 import Btn from '../../component/button'
+import FormControl from '../../component/form/formControl'
+import DatePicker from '../../component/datePicker'
 
 import './index.less'
 
@@ -22,6 +24,8 @@ export default class Page extends Component {
 
   state = {
     visibleAdd: false,
+
+    endTime: '',
 
     member: [],
     memberList: [
@@ -52,12 +56,6 @@ export default class Page extends Component {
     ]
   }
 
-  componentWillUnmount () { }
-
-  componentDidShow () { }
-
-  componentDidHide () { }
-
   handleShowAdd = () => {
     this.setState({ visibleAdd: true })
   }
@@ -66,8 +64,17 @@ export default class Page extends Component {
     this.setState({ visibleAdd: false })
   }
 
+  handleChange = (type, e) => {
+    this.setState({
+      [type]: e.target.value
+    })
+  }
+
   handleSelectMember = (v, i, e) => {
-    const { member } = this.state
+    const {
+      member,
+      endTime
+    } = this.state
 
     if (member.includes(v.id)) {
       this.setState({
@@ -99,8 +106,8 @@ export default class Page extends Component {
           postponeCount = { 0 }
 
           dark
+          visibleSwitch
         >
-
           <View className = 'invite-btn' />
         </Panel>
         <Layout padding = { [100, 32, 64] }>
@@ -130,44 +137,39 @@ export default class Page extends Component {
         <View className = { cs('modal-dialog', { 'modal-dialog-visible': visibleAdd }) }>
           <View className = 'modal-dialog-close' onClick = { this.handleHideAdd } />
 
-          <View className = 'form-group'>
-            <View className = 'form-group-label'>需要做什么</View>
-            <View className = 'form-group-content'>
-              <Textarea
-                placeholder = '150字以内'
-                maxlength = { 150 }
-              />
-            </View>
-          </View>
+          <FormControl
+            label = '需要做什么'
+            type = 'textarea'
+            placeholder = '150字以内'
+            maxlength = { 150 }
+          />
 
-          <View className = 'form-group'>
-            <View className = 'form-group-label'>参与者</View>
-            <View className = 'form-group-content'>
-              <View className = 'member-wrap'>
-                {
-                  memberList.map((v, i) => (
-                    <View
-                      className = {
-                        cs('member-checkbox', {
-                          ['member-checkbox-checked']: member.includes(v.id)
-                        })
-                      }
-                      key = { i }
-                      onClick = { this.handleSelectMember.bind(this, v, i) }
-                    >
-                      { v.nickName }
-                    </View>
-                  ))
-                }
-              </View>
+          <FormControl label = '参与者'>
+            <View className = 'member-wrap'>
+              {
+                memberList.map((v, i) => (
+                  <View
+                    className = {
+                      cs('member-checkbox', {
+                        ['member-checkbox-checked']: member.includes(v.id)
+                      })
+                    }
+                    key = { i }
+                    onClick = { this.handleSelectMember.bind(this, v, i) }
+                  >
+                    { v.nickName }
+                  </View>
+                ))
+              }
             </View>
-          </View>
+          </FormControl>
 
-          <View className = 'form-group'>
-            <View className = 'form-group-label'>任务截止日期</View>
-            <View className = 'form-group-content'>
-            </View>
-          </View>
+          <DatePicker
+            label = '任务截止日期'
+
+            value = { endTime }
+            onChange = { this.handleChange.bind(this, 'endTime') }
+          />
 
           <Btn>完成</Btn>
         </View>

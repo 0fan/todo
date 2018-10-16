@@ -1,0 +1,56 @@
+@import '../../../less/mixin.less';
+
+.form-group {
+  margin-bottom: 90px;
+
+  &-header {
+    font-size: 30px;
+    color: #A9A9A9;
+  }
+
+  &-body {
+    position: relative;
+    height: 96px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 0;
+
+    .hairline(bottom);
+  }
+
+  &-control {
+    font-size: 32px;
+    color: #4A4A4A;
+    width: 50%;
+
+    input {
+      display: block;
+      width: 100%;
+    }
+  }
+
+  &-after {
+    .text-overflow();
+
+    font-size: 26px;
+    color: #8D8D8D;
+    margin-left: 20px;
+    flex-shrink: 0;
+    text-align: right;
+    width: 50%;
+
+    &:after {
+      vertical-align: -3px;
+      content: '';
+      display: inline-block;
+      width: 32px;
+      height: 32px;
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-position: center center;
+      background-image: url('../../../asset/img/switch.png');
+      margin-left: 12px;
+    }
+  }
+}

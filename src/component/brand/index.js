@@ -7,7 +7,9 @@ export default class App extends Component {
   render () {
     const {
       title = '凸度 - 专注每一件小事',
-      version = 'BETA'
+      version = 'BETA',
+
+      visibleVersion = true
     } = this.props
 
     return (
@@ -15,9 +17,13 @@ export default class App extends Component {
         <View className = 'brand-title'>
           <Text>{ title }</Text>
         </View>
-        <View className = 'brand-version'>
-          <Text>{ version }</Text>
-        </View>
+        {
+          visibleVersion ?
+            <View className = 'brand-version'>
+              <Text>{ version }</Text>
+            </View> :
+            null
+        }
       </View>
     )
   }

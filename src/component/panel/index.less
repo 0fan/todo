@@ -1,3 +1,4 @@
+@import '../../less/variable.less';
 @import '../../less/mixin.less';
 
 .panel {
@@ -9,14 +10,15 @@
     justify-content: space-between;
 
     .h1 {
-      line-height: 1.15;
       display: flex;
-      min-width: 0;
-      font-size: 48px;
-      font-weight: 500;
-      margin-bottom: 32px;
 
       text {
+        line-height: 1.15;
+        min-width: 0;
+        font-size: 48px;
+        font-weight: 500;
+        min-width: 0;
+
         .text-overflow();
       }
     }
@@ -27,9 +29,18 @@
   }
 
   &-right {
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+    color: #8D8D8D;
+    font-size: 26px;
+    margin-left: 20px;
+  }
+
+  &-content {
+    min-width: 0;
+    flex-grow: 1;
   }
 
   &-footer {
@@ -41,6 +52,21 @@
     display: flex;
     justify-content: space-between;
     z-index: 10;
+  }
+
+  &-simple {
+    padding-bottom: 0;
+  }
+
+  &-collapse {
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  &-has-extra {
+    .h1 {
+      margin-bottom: 32px;
+    }
   }
 
   &-has-footer {
@@ -133,4 +159,72 @@
       color: #81B1FF;
     }
   }
+}
+
+
+.center-panel {
+  padding: 64px 0 92px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  &-avatar {
+    margin-bottom: 20px;
+  }
+
+  &-title {
+    text {
+      font-size: 48px;
+      color: #000;
+
+      .text-overflow();
+    }
+  }
+}
+
+.left-panel {
+  padding: 64px 0 68px;
+  position: relative;
+  display: flex;
+
+  .hairline(bottom);
+
+  &-left {
+    flex-shrink: 0;
+    margin-right: 28px;
+  }
+
+  &-content {
+    min-width: 0;
+    flex-grow: 1;
+  }
+
+  &-title {
+    margin-bottom: 10px;
+    line-height: 1.25;
+
+    text {
+      font-size: 48px;
+      color: #000;
+      font-weight: 500;
+
+      .text-overflow();
+    }
+  }
+
+  &-extra {
+    font-size: 30px;
+    color: @primary;
+  }
+}
+
+.switch {
+  position: relative;
+  top: 7px;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  background: url('../../asset/img/switch_light.png') no-repeat center center;
+  background-size: 36px 36px;
+  margin-left: 20px;
 }

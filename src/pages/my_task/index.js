@@ -4,7 +4,7 @@ import { View, Button, Text } from '@tarojs/components'
 import Layout from '../../component/layout'
 import Panel from '../../component/panel'
 import Sort from '../../component/sort'
-import Card from '../../component/card'
+import Card from '../../component/card/taskCard'
 
 import './index.less'
 

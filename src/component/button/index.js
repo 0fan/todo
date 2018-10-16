@@ -10,7 +10,7 @@ export default class App extends Component {
       return
     }
 
-    axios(url.server + api.saveFormId, {
+    ajax(url.server + api.saveFormId, {
       formIds: `"${ e.detail.formId }"`
     })
   }

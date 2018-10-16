@@ -28,8 +28,8 @@ export default (
 ) => new Promise((resolve, reject) => {
   request({
     url,
-    header,
     data: qs.stringify(data),
+    header,
     method: 'post',
 
     ...config,
@@ -51,6 +51,7 @@ export default (
       resolve([null, object])
     },
     fail: err => {
+      console.log(err)
       resolve(['请求失败'])
     }
   })

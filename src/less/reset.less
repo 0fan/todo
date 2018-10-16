@@ -1,9 +1,10 @@
 @import './variable.less';
+@import './mixin.less';
 
 page {
   font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
-  overflow: auto;
-  height: 100%;
+  // overflow: auto;
+  // height: 100%;
   line-height: 1.5;
   font-size: 30px;
   color: #000;
@@ -40,5 +41,80 @@ button {
       background-color: lighten(@primary, 30%);
       border-color: lighten(@primary, 10%);
     }
+  }
+}
+
+textarea {
+  .formControl(224px);
+
+  line-height: 1.5;
+}
+
+.member-wrap {
+  display: flex;
+  overflow: auto;
+  white-space: nowrap;
+  margin: 0 -10px;
+}
+
+.member-checkbox {
+  height: 68px;
+  box-sizing: border-box;
+  line-height: 68px;
+  border-radius: 34px;
+  padding: 0 28px;
+  font-size: 32px;
+  color: #000;
+  border: 1px solid #E9E9E9;
+  margin: 0 10px;
+
+  &-checked {
+    border-color: @primary;
+    background: @primary;
+    color: #fff;
+  }
+}
+
+.type-wrap {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 -14px;
+}
+
+.type-checkbox {
+  box-sizing: border-box;
+  height: 68px;
+  line-height: 68px;
+  border-radius: 34px;
+  border: 1px solid #E9E9E9;
+  padding: 0 32px;
+  font-size: 32px;
+  color: #8D8D8D;
+  margin: 0 14px;
+  position: relative;
+
+  &:before {
+    vertical-align: -3px;
+    content: '';
+    display: inline-block;
+    width: 36px;
+    height: 36px;
+    margin-right: 12px;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+  }
+
+  &-work { &:before { background-image: url('../asset/img/work_dark.png'); } }
+  &-life { &:before { background-image: url('../asset/img/life_dark.png'); } }
+  &-tour { &:before { background-image: url('../asset/img/tour_dark.png'); } }
+
+  &-checked {
+    border-color: @primary;
+    color: @primary;
+
+    &.type-checkbox-work { &:before { background-image: url('../asset/img/work.png'); } }
+    &.type-checkbox-life { &:before { background-image: url('../asset/img/life.png'); } }
+    &.type-checkbox-tour { &:before { background-image: url('../asset/img/tour.png'); } }
   }
 }

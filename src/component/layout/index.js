@@ -8,7 +8,8 @@ export default class App extends Component {
   render () {
     const {
       padding,
-      flex
+      flex,
+      grow,
     } = this.props
 
     let styleString = {}
@@ -26,7 +27,8 @@ export default class App extends Component {
     }
 
     const classString = cs('layout', {
-      'layout-flex': flex
+      'layout-flex': flex,
+      'layout-grow': grow,
     })
 
     return (

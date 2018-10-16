@@ -14,7 +14,7 @@
   background: transparent url('../../asset/img/add_light.png') no-repeat center left 28px;
   background-size: 20px 20px;
   box-sizing: border-box;
-  border: 1px solid #fff;
+  border: 1px solid fade(#fff, 50%);
 
   &:before {
     content: '邀请';
@@ -51,13 +51,15 @@
     height: 100%;
     z-index: 100;
     background: rgba(0,0,0,.6);
-    transition: opacity linear .2s;
-    opacity: 0;
-    visibility: hidden;
+    // transition: opacity linear .2s;
+    // opacity: 0;
+    display: none;
+    // visibility: hidden;
 
     &-visible {
-      opacity: 1;
-      visibility: visible;
+      // opacity: 1;
+      display: block;
+      // visibility: visible;
     }
   }
 
@@ -71,15 +73,17 @@
     background: #fff;
     padding: 32px 60px 60px;
     border-radius: 18px 18px 0 0;
-    opacity: 0;
-    transform: translate(0, 100%);
-    visibility: hidden;
-    transition: transform .2s, opacity .2s;
+    // opacity: 0;
+    // transform: translate(0, 100%);
+    // visibility: hidden;
+    display: none;
+    // transition: transform .2s, opacity .2s;
 
     &-visible {
-      transform: translate(0, 0);
-      opacity: 1;
-      visibility: visible;
+      // transform: translate(0, 0);
+      // opacity: 1;
+      // visibility: visible;
+      display: block;
     }
 
     &-close {
@@ -91,31 +95,5 @@
       top: 34px;
       right: 34px;
     }
-  }
-}
-
-
-.member-wrap {
-  display: flex;
-  overflow: auto;
-  white-space: nowrap;
-  margin: 0 -10px;
-}
-
-.member-checkbox {
-  height: 68px;
-  box-sizing: border-box;
-  line-height: 68px;
-  border-radius: 34px;
-  padding: 0 28px;
-  font-size: 32px;
-  color: #000;
-  border: 1px solid #E9E9E9;
-  margin: 0 10px;
-
-  &-checked {
-    border-color: @primary;
-    background: @primary;
-    color: #fff;
   }
 }

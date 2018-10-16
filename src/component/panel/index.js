@@ -9,6 +9,10 @@ import Avatar from '../avatar'
 import './index.less'
 
 export default class App extends Component {
+  handleSwitchClick = e => {
+    this.props.onSwitch && this.props.onSwitch()
+  }
+
   render () {
     const {
       title,
@@ -23,8 +27,48 @@ export default class App extends Component {
 
       dark,
 
-      avatar
+      avatar,
+
+      // [Boolean] 是否取消左右padding
+      collapse,
+
+      // [String] 类型 center[对应我的信息]/left[对应邀请]
+      type,
+
+      // [Boolean] 是否显示切换小组按钮 因为右侧已经被this.props.children使用了
+      visibleSwitch,
+      // [Function] 点击切换小组事件
+      onSwitch
     } = this.props
+
+    if (type === 'center') {
+      return (
+        <View className = 'center-panel'>
+          <View className = 'center-panel-avatar'>
+            <Avatar size = { 140 } src = { avatar } />
+          </View>
+          <View className = 'center-panel-title'>
+            <Text>{ title }</Text>
+          </View>
+        </View>
+      )
+    }
+
+    if (type === 'left') {
+      return (
+        <View className = 'left-panel'>
+          <View className = 'left-panel-left'>
+            <Avatar size = { 108 } src = { avatar } />
+          </View>
+          <View className = 'left-panel-content'>
+            <View className = 'left-panel-title'>
+              <Text>{ title }</Text>
+            </View>
+            <View className = 'left-panel-extra'>邀请你加入</View>
+          </View>
+        </View>
+      )
+    }
 
     const hasFooter = (
       !_.isNil(finishCount) &&
@@ -34,6 +78,9 @@ export default class App extends Component {
 
     const classString = cs('panel', {
       ['panel-dark']: dark,
+      ['panel-collapse']: collapse,
+      ['panel-simple']: !extra && !avatar && !hasFooter,
+      ['panel-has-extra']: extra,
       ['panel-has-avatar']: avatar,
       ['panel-has-footer']: hasFooter,
     })
@@ -42,8 +89,17 @@ export default class App extends Component {
       <View className = { classString }>
         <View className = 'panel-body'>
           <View className = 'panel-content'>
-            <View className = 'h1'><Text>{ title }</Text></View>
-            <View className = 'extra'>{ extra }</View>
+            <View className = 'h1'>
+              <Text>{ title }</Text>
+              {
+                visibleSwitch ?
+                  <Text className = 'switch' onClick = { this.handleSwitchClick } /> :
+                  null
+              }
+            </View>
+            {
+              extra ? <View className = 'extra'>{ extra }</View> : null
+            }
           </View>
           <View className = 'panel-right'>
             {

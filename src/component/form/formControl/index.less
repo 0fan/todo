@@ -1,0 +1,41 @@
+@import '../../../less/mixin.less';
+
+.form-group {
+  margin: 32px 0 60px;
+
+  &-header {
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &-label {
+    font-size: 40px;
+    font-weight: 500;
+    line-height: 1.25;
+  }
+
+  &-extra {
+    color: #8D8D8D;
+    font-size: 26px;
+  }
+
+  &-body {
+    font-size: 32px;
+  }
+
+  &-disabled {
+
+    .form-control,
+    textarea {
+      border-color: #F3F4F5 !important;
+      background-color: #F3F4F5 !important;
+      color: #4A4A4A !important;
+    }
+  }
+}
+
+.form-control {
+  .formControl();
+}

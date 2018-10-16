@@ -13,7 +13,7 @@ import './less/index.less'
 
 const store = createStore(reducer, applyMiddleware(
   thunkMiddleware,
-  // createLogger()
+  createLogger()
 ))
 
 class App extends Component {
@@ -26,19 +26,20 @@ class App extends Component {
       navigationBarTextStyle: 'black'
     },
     pages: [
+      'pages/auth/index',
       'pages/team_task/index',
       'pages/my_task/index',
       'pages/account/index',
 
       'pages/account/info/index',
       'pages/account/my_team/index',
-      'pages/account/my_team/team_task/index',
+      'pages/account/my_team/team_detail/index',
 
       'pages/task_detail/index',
       'pages/create_team/index',
       'pages/invite/index',
 
-      'pages/auth/index',
+      // 'pages/auth/index',
     ],
     tabBar: {
       color: '#A9A9A9',
@@ -75,7 +76,7 @@ class App extends Component {
 
   render () {
     return (
-      <Provider store = { store }></Provider>
+      <Provider store = { store } />
     )
   }
 }

@@ -3,7 +3,7 @@ import ajax, { setToken } from '../util/ajax'
 import store from '../util/store'
 import { getCode } from '../util/wx'
 
-import { getTeam, getTeamTask, getTeamMember } from './team'
+import { getTeam, getTeamTask, getTeamMember } from './team/method'
 
 import { url, api } from '../config/api'
 

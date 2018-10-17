@@ -236,6 +236,84 @@ export const reducer = (state = initState, _action) => {
         ...payload
       }
 
+    // 添加任务
+    case action.add_team_task_loading:
+      return {
+        ...state,
+
+        add_team_task_msg: '',
+        add_team_task_loading: true,
+      }
+    case action.add_team_task_loaded:
+      return {
+        ...state,
+
+        add_team_task_loading: false
+      }
+    case action.add_team_task_fail:
+      return {
+        ...state,
+
+        add_team_task_msg: payload
+      }
+    case action.add_team_task_success:
+      return {
+        ...state,
+        ...payload
+      }
+
+    // 修改任务
+    case action.edit_team_task_loading:
+      return {
+        ...state,
+
+        edit_team_task_msg: '',
+        edit_team_task_loading: true,
+      }
+    case action.edit_team_task_loaded:
+      return {
+        ...state,
+
+        edit_team_task_loading: false
+      }
+    case action.edit_team_task_fail:
+      return {
+        ...state,
+
+        edit_team_task_msg: payload
+      }
+    case action.edit_team_task_success:
+      return {
+        ...state,
+        ...payload
+      }
+
+    // 删除任务
+    case action.remove_team_task_loading:
+      return {
+        ...state,
+
+        remove_team_task_msg: '',
+        remove_team_task_loading: true,
+      }
+    case action.remove_team_task_loaded:
+      return {
+        ...state,
+
+        remove_team_task_loading: false
+      }
+    case action.remove_team_task_fail:
+      return {
+        ...state,
+
+        remove_team_task_msg: payload
+      }
+    case action.remove_team_task_success:
+      return {
+        ...state,
+        ...payload
+      }
+
     // 获取小组成员列表
     case action.get_member_data_loading:
       return {
@@ -253,6 +331,58 @@ export const reducer = (state = initState, _action) => {
         ...payload
       }
     case action.get_member_data_success:
+      return {
+        ...state,
+        ...payload
+      }
+
+    // 添加成员
+    case action.add_team_member_loading:
+      return {
+        ...state,
+
+        add_team_member_msg: '',
+        add_team_member_loading: true,
+      }
+    case action.add_team_member_loaded:
+      return {
+        ...state,
+
+        add_team_member_loading: false
+      }
+    case action.add_team_member_fail:
+      return {
+        ...state,
+
+        add_team_member_msg: payload
+      }
+    case action.add_team_member_success:
+      return {
+        ...state,
+        ...payload
+      }
+
+    // 移除成员
+    case action.remove_team_member_loading:
+      return {
+        ...state,
+
+        remove_team_member_msg: '',
+        remove_team_member_loading: true,
+      }
+    case action.remove_team_member_loaded:
+      return {
+        ...state,
+
+        remove_team_member_loading: false
+      }
+    case action.remove_team_member_fail:
+      return {
+        ...state,
+
+        remove_team_member_msg: payload
+      }
+    case action.remove_team_member_success:
       return {
         ...state,
         ...payload

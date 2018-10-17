@@ -1,4 +1,4 @@
-import Taro, { Component } from '@tarojs/taro'
+import Taro, { Component, switchTab, navigateTo, reLaunch } from '@tarojs/taro'
 import { View, Input } from '@tarojs/components'
 
 import cs from 'classnames'
@@ -52,7 +52,15 @@ export default class Page extends Component {
     }
   }
 
-  handleSubmit = e => {}
+  handleSubmit = e => {
+    const { r } = this.$router.params
+
+    if (r) {
+      reLaunch({
+        url: r
+      })
+    }
+  }
 
   render () {
     const {

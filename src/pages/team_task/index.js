@@ -1,4 +1,5 @@
 import Taro, { Component } from '@tarojs/taro'
+import { connect } from '@tarojs/redux'
 import { View, Button, Input, Text, Textarea } from '@tarojs/components'
 
 import cs from 'classnames'
@@ -11,8 +12,18 @@ import Btn from '../../component/button'
 import FormControl from '../../component/form/formControl'
 import DatePicker from '../../component/datePicker'
 
+import { changeCurrentTeam } from '../../model/user'
+import { getTeam } from '../../model/team/method'
+
 import './index.less'
 
+@connect(state => ({
+  user: state.user,
+  team: state.team,
+}), dispatch => ({
+  changeCurrentTeam: (...rest) => dispatch(changeCurrentTeam(...rest)),
+  getTeam: (...rest) => dispatch(getTeam(...rest)),
+}))
 export default class Page extends Component {
   config = {
     navigationBarTitleText: '小组任务',
@@ -87,6 +98,10 @@ export default class Page extends Component {
     }
   }
 
+  handleClick = (v, i, e) => {
+    console.log(v, i)
+  }
+
   render () {
     const {
       visibleAdd,
@@ -95,18 +110,33 @@ export default class Page extends Component {
       member
     } = this.state
 
+    const {
+      user: {
+        currentTeamId,
+      },
+      team: {
+        data
+      }
+    } = this.props
+
+    const currentTeam = data[currentTeamId]
+
+    if (!currentTeam) {
+      return null
+    }
+
     return (
       <Layout>
         <Panel
-          title = '你好 林凡'
-          extra = '1位成员'
+          title = { currentTeam.groupName }
+          extra = { `${ currentTeam.memberCount }位成员` }
 
-          finishCount = { 0 }
-          ingCount = { 0 }
-          postponeCount = { 0 }
+          finishCount = { currentTeam.finishCount }
+          ingCount = { currentTeam.ingCount }
+          postponeCount = { currentTeam.postponeCount }
 
           dark
-          visibleSwitch
+          visibleSwitch = { Object.keys(data).length > 1 }
         >
           <View className = 'invite-btn' />
         </Panel>
@@ -114,24 +144,24 @@ export default class Page extends Component {
           <Sort>
             <View className = 'release-btn' onClick = { this.handleShowAdd } />
           </Sort>
-          <Card
-            title = '产品版本迭代计划书'
-            project = '奔驰采购计划'
-            status = '0'
-            postponeCountDays = '2'
-          />
-          <Card
-            title = '产品版本迭代计划书'
-            project = '奔驰采购计划'
-            status = '2'
-            surplusCountDays = '2'
-          />
-          <Card
-            title = '产品版本迭代计划书'
-            project = '奔驰采购计划'
-            status = '1'
-            finishCountDays = '2'
-          />
+          {
+            currentTeam.task.map((v, i) => (
+              <Card
+                title = { v.taskCentent }
+                project = { v.userGroup.groupName }
+
+                status = { v.status }
+
+                finishCountDays = { v.finishCountDays }
+                postponeCountDays = { v.postponeCountDays }
+                surplusCountDays = { v.surplusCountDays }
+
+                onClick = { this.handleClick.bind(this, v, i) }
+
+                key = { i }
+              />
+            ))
+          }
         </Layout>
         <View className = { cs('modal-mask', { 'modal-mask-visible': visibleAdd }) } onClick = { this.handleHideAdd } />
         <View className = { cs('modal-dialog', { 'modal-dialog-visible': visibleAdd }) }>

@@ -13,7 +13,7 @@ import './less/index.less'
 
 const store = createStore(reducer, applyMiddleware(
   thunkMiddleware,
-  createLogger()
+  // createLogger()
 ))
 
 class App extends Component {
@@ -27,8 +27,8 @@ class App extends Component {
     },
     pages: [
       'pages/auth/index',
-      'pages/team_task/index',
       'pages/my_task/index',
+      'pages/team_task/index',
       'pages/account/index',
 
       'pages/account/info/index',

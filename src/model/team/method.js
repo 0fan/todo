@@ -1,3 +1,5 @@
+import { navigateTo, switchTab, redirectTo, reLaunch, navigateBack } from '@tarojs/taro'
+
 import * as actionCreator from './action'
 import ajax from '../../util/ajax'
 import { showToast } from '../../util/wx'
@@ -5,6 +7,7 @@ import { showToast } from '../../util/wx'
 import _ from 'lodash'
 
 import { changeCurrentTeam } from '../user'
+import { getMyTask } from '../task'
 
 import { url, api } from '../../config/api'
 
@@ -122,10 +125,13 @@ export function getTeam (
       }
     })
 
-    dispatch(actionCreator.getDataSuccess({
+    await dispatch(actionCreator.getDataSuccess({
       get_data_query: assignQuery,
       data: _data
     }, isRefresh))
+
+    // 获取个人任务列表
+    dispatch(getMyTask())
 
     // 如果存在至少一个小组
     if (firstTeam) {
@@ -133,15 +139,136 @@ export function getTeam (
       // 如果传递了小组id,且列表也有数据则切换到这个小组
       if (teamId && _data[teamId]) {
         dispatch(changeCurrentTeam(teamId))
+      } else if (currentTeamId && _data[currentTeamId]) {
+        // 如果存在当前小组id且列表存在则仍然定向到当前小组
+        dispatch(changeCurrentTeam(currentTeamId))
       } else {
         // 如果没有传递小组id则默认当前小组为第一个小组
         dispatch(changeCurrentTeam(firstTeam.id))
       }
 
     } else {
-      showToast('没有小组呀')
-      console.log('没有小组呀')
+
+      // 没有小组跳转到创建小组页面
+      reLaunch({
+        url: '/pages/create_team/index?r=/pages/my_task/index'
+      })
+
+      showToast({ title: '没有小组呀' })
+
     }
+
+    return [null, res]
+  }
+}
+
+/**
+ * [addTeam 添加小组]
+ * @param {Object} payload [请求参数]
+ */
+export function addTeam (
+  payload = {}
+) {
+  return async (dispatch, getState) => {
+    const {
+      team: {
+        add_team_loading: loading
+      }
+    } = getState()
+
+    if (loading) {
+      return ['重复请求']
+    }
+
+    dispatch(addTeamLoading())
+
+    const [err, res] = await ajax(url.server + api.team.add, payload)
+
+    dispatch(addTeamLoaded())
+
+    if (err) {
+      dispatch(addTeamFail(err))
+    }
+
+    const {
+      id
+    } = res
+
+    await dispatch(addTeamSuccess())
+    // 添加小组成功后重新获取列表且设置到添加的小组为当前小组
+    dispatch(getTeam({}, { teamId: id }))
+
+    return [null, res]
+  }
+}
+
+/**
+ * [editTeam 修改小组]
+ * @param {Object} payload [请求参数]
+ */
+export function editTeam (
+  payload = {}
+) {
+  return async (dispatch, getState) => {
+    const {
+      team: {
+        edit_team_loading: loading
+      }
+    } = getState()
+
+    if (loading) {
+      return ['重复请求']
+    }
+
+    dispatch(editTeamLoading())
+
+    const [err, res] = await ajax(url.server + api.team.edit, payload)
+
+    dispatch(editTeamLoaded())
+
+    if (err) {
+      dispatch(editTeamFail(err))
+    }
+
+    await dispatch(editTeamSuccess())
+    // 添加小组成功后重新获取列表
+    dispatch(getTeam({}, { teamId: payload.groupId }))
+
+    return [null, res]
+  }
+}
+
+/**
+ * [removeTeam 删除/退出小组]
+ * @param {Object} payload [请求参数]
+ */
+export function removeTeam (
+  payload = {}
+) {
+  return async (dispatch, getState) => {
+    const {
+      team: {
+        remove_team_loading: loading
+      }
+    } = getState()
+
+    if (loading) {
+      return ['重复请求']
+    }
+
+    dispatch(removeTeamLoading())
+
+    const [err, res] = await ajax(url.server + api.team.remove, payload)
+
+    dispatch(removeTeamLoaded())
+
+    if (err) {
+      dispatch(removeTeamFail(err))
+    }
+
+    await dispatch(removeTeamSuccess())
+    // 添加小组成功后重新获取列表
+    dispatch(getTeam({}))
 
     return [null, res]
   }
@@ -275,6 +402,57 @@ export function getTeamTask (
 }
 
 /**
+ * [addTeamTask 添加任务]
+ * @param  {Object} payload [请求参数]
+ * @return {[err, res]}
+ */
+export function addTeamTask (payload = {}) {
+  return async (dispatch, getState) => {
+    const {
+      add_team_task_loading: loading
+    } = getState()
+
+    if (loading) {
+      return ['重复请求']
+    }
+  }
+}
+
+/**
+ * [editTeamTask 编辑任务]
+ * @param  {Object} payload [请求参数]
+ * @return {[err, res]}
+ */
+export function editTeamTask (payload = {}) {
+  return async (dispatch, getState) => {
+    const {
+      add_team_task_loading: loading
+    } = getState()
+
+    if (loading) {
+      return ['重复请求']
+    }
+  }
+}
+
+/**
+ * [removeTeamTask 删除任务]
+ * @param  {Object} payload [请求参数]
+ * @return {[err, res]}
+ */
+export function removeTeamTask (payload = {}) {
+  return async (dispatch, getState) => {
+    const {
+      add_team_task_loading: loading
+    } = getState()
+
+    if (loading) {
+      return ['重复请求']
+    }
+  }
+}
+
+/**
  * [getTeamMember 获取小组成员列表]
  * @param  {Object} payload [请求参数]
  * @param  {Number} teamId  [小组id]
@@ -387,5 +565,39 @@ export function getTeamMember (
     }))
 
     return [null, res]
+  }
+}
+
+/**
+ * [removeTeamTask 添加成员]
+ * @param  {Object} payload [请求参数]
+ * @return {[err, res]}
+ */
+export function addTeamMember (payload = {}) {
+  return async (dispatch, getState) => {
+    const {
+      add_team_task_loading: loading
+    } = getState()
+
+    if (loading) {
+      return ['重复请求']
+    }
+  }
+}
+
+/**
+ * [removeTeamTask 移除成员]
+ * @param  {Object} payload [请求参数]
+ * @return {[err, res]}
+ */
+export function removeTeamMember (payload = {}) {
+  return async (dispatch, getState) => {
+    const {
+      add_team_task_loading: loading
+    } = getState()
+
+    if (loading) {
+      return ['重复请求']
+    }
   }
 }

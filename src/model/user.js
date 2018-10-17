@@ -1,4 +1,4 @@
-import { navigateTo, switchTab } from '@tarojs/taro'
+import { navigateTo, switchTab, reLaunch } from '@tarojs/taro'
 import ajax, { setToken } from '../util/ajax'
 import store from '../util/store'
 import { getCode } from '../util/wx'
@@ -168,15 +168,18 @@ export function login (payload = {}, r) {
         url: r
       })
     } else {
-      if (userType === '3') {
-        navigateTo({
-          url: '/pages/create_team/index?from=是从登录没有小组进来哒&r=/pages/i/index'
-        })
-      } else {
-        switchTab({
-          url: '/pages/my_task/index'
-        })
-      }
+      switchTab({
+        url: '/pages/team_task/index'
+      })
+      // if (userType === '3') {
+      //   reLaunch({
+      //     url: '/pages/create_team/index?from=是从登录没有小组进来哒&r=/pages/i/index'
+      //   })
+      // } else {
+      //   switchTab({
+      //     url: '/pages/my_task/index'
+      //   })
+      // }
     }
 
     return [null, res]

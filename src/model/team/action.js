@@ -82,9 +82,34 @@ export const getTaskDataLoading = (payload, isRefresh) => ({ payload, isRefresh,
 export const getTaskDataLoaded = (payload, isRefresh) => ({ payload, isRefresh, type: get_task_data_loaded })
 export const getTaskDataFail = (payload, isRefresh) => ({ payload, isRefresh, type: get_task_data_fail })
 export const getTaskDataSuccess = (payload, isRefresh) => ({ payload, isRefresh, type: get_task_data_success })
+// 添加任务
+export const addTeamTaskLoading = (payload) => ({ payload, type: add_team_task_loading })
+export const addTeamTaskLoaded = (payload) => ({ payload, type: add_team_task_loaded })
+export const addTeamTaskFail = (payload) => ({ payload, type: add_team_task_fail })
+export const addTeamTaskSuccess = (payload) => ({ payload, type: add_team_task_success })
+// 修改任务
+export const editTeamTaskLoading = (payload) => ({ payload, type: edit_team_task_loading })
+export const editTeamTaskLoaded = (payload) => ({ payload, type: edit_team_task_loaded })
+export const editTeamTaskFail = (payload) => ({ payload, type: edit_team_task_fail })
+export const editTeamTaskSuccess = (payload) => ({ payload, type: edit_team_task_success })
+// 删除任务
+export const removeTeamTaskLoading = (payload) => ({ payload, type: remove_team_task_loading })
+export const removeTeamTaskLoaded = (payload) => ({ payload, type: remove_team_task_loaded })
+export const removeTeamTaskFail = (payload) => ({ payload, type: remove_team_task_fail })
+export const removeTeamTaskSuccess = (payload) => ({ payload, type: remove_team_task_success })
 // 获取小组成员列表
 export const getMemberDataLoading = (payload, isRefresh) => ({ payload, isRefresh, type: get_member_data_loading })
 export const getMemberDataLoaded = (payload, isRefresh) => ({ payload, isRefresh, type: get_member_data_loaded })
 export const getMemberDataFail = (payload, isRefresh) => ({ payload, isRefresh, type: get_member_data_fail })
 export const getMemberDataSuccess = (payload, isRefresh) => ({ payload, isRefresh, type: get_member_data_success })
+// 添加成员
+export const addTeamMemberLoading = (payload) => ({ payload, type: add_team_member_loading })
+export const addTeamMemberLoaded = (payload) => ({ payload, type: add_team_member_loaded })
+export const addTeamMemberFail = (payload) => ({ payload, type: add_team_member_fail })
+export const addTeamMemberSuccess = (payload) => ({ payload, type: add_team_member_success })
+// 删除成员
+export const removeTeamMemberLoading = (payload) => ({ payload, type: remove_team_member_loading })
+export const removeTeamMemberLoaded = (payload) => ({ payload, type: remove_team_member_loaded })
+export const removeTeamMemberFail = (payload) => ({ payload, type: remove_team_member_fail })
+export const removeTeamMemberSuccess = (payload) => ({ payload, type: remove_team_member_success })
 /* /action creator */

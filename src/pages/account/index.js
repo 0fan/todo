@@ -1,4 +1,5 @@
 import Taro, { Component } from '@tarojs/taro'
+import { connect } from '@tarojs/redux'
 import { View } from '@tarojs/components'
 
 import Layout from '../../component/layout'
@@ -7,20 +8,36 @@ import List from '../../component/list'
 import Item from '../../component/list/item'
 import Brand from '../../component/brand'
 
+import { getMyTask } from '../../model/user'
+
 import './index.less'
 
+@connect(state => ({
+  user: state.user,
+  team: state.team,
+}), dispatch => ({}))
 export default class Page extends Component {
   config = {
     navigationBarTitleText: '个人中心',
   }
 
   render () {
+    const {
+      user: {
+        nickName,
+        avatarUrl,
+      },
+      team: {
+        data
+      }
+    } = this.props
+
     return (
       <Layout padding = { [0, 28, 112] }>
         <Panel
-          title = '林凡'
-          extra = '已加入1个小组'
-          avatar = 'd'
+          title = { nickName }
+          avatar = { avatarUrl }
+          extra = { `已加入${ Object.keys(data).length }个小组` }
         />
         <List>
           <Item title = '我的信息' icon = 'i' to = '/' />

@@ -114,16 +114,16 @@ export default class App extends Component {
           hasFooter ?
             <View className = 'panel-footer'>
               <View className = 'panel-card panel-card-progress'>
-                <View className = 'panel-card-value'>{ finishCount }</View>
-                <View className = 'panel-card-label'>进行中</View>
-              </View>
-              <View className = 'panel-card panel-card-fail'>
                 <View className = 'panel-card-value'>{ ingCount }</View>
                 <View className = 'panel-card-label'>进行中</View>
               </View>
-              <View className = 'panel-card panel-card-success'>
+              <View className = 'panel-card panel-card-fail'>
                 <View className = 'panel-card-value'>{ postponeCount }</View>
-                <View className = 'panel-card-label'>进行中</View>
+                <View className = 'panel-card-label'>延期中</View>
+              </View>
+              <View className = 'panel-card panel-card-success'>
+                <View className = 'panel-card-value'>{ finishCount }</View>
+                <View className = 'panel-card-label'>已完成</View>
               </View>
             </View> :
             null

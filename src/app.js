@@ -13,7 +13,7 @@ import './less/index.less'
 
 const store = createStore(reducer, applyMiddleware(
   thunkMiddleware,
-  // createLogger()
+  createLogger()
 ))
 
 class App extends Component {

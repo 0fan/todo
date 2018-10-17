@@ -1,4 +1,4 @@
-import Taro, { Component, pxTransform } from '@tarojs/taro'
+import Taro, { Component, navigateTo } from '@tarojs/taro'
 import { View } from '@tarojs/components'
 
 import cs from 'classnames'
@@ -7,6 +7,21 @@ import './index.less'
 
 export default class App extends Component {
   handleClick = e => {
+    const {
+      to,
+      disabled
+    } = this.props
+
+    if (disabled) {
+      return
+    }
+
+    if (to) {
+      navigateTo({
+        url: to
+      })
+    }
+
     this.props.onClick && this.props.onClick(e)
   }
 
@@ -16,6 +31,7 @@ export default class App extends Component {
       project,
 
       status,
+      disabled,
 
       finishCountDays,
       postponeCountDays,
@@ -26,6 +42,7 @@ export default class App extends Component {
       'card-progress': status === '2',
       'card-fail': status === '0',
       'card-success': status === '1',
+      'card-disabled': disabled,
     })
 
     return (

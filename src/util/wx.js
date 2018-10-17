@@ -83,16 +83,22 @@ export function showToast ({
   duration = 2000,
 
   ...rest
-}) {
+}, cb) {
   return new Promise((resolve, reject) => {
     wx.showToast({
       title,
       icon,
       duration,
       ...rest,
-      success: (res) => resolve(res || true),
-      fail: () => resolve(false),
+      // success: (res) => resolve(res || true),
+      // fail: () => resolve(false),
     })
+
+    setTimeout(() => {
+      cb && cb()
+
+      resolve(true)
+    }, duration)
   })
 }
 

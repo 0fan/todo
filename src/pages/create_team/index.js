@@ -1,14 +1,25 @@
-import Taro, { Component, switchTab, navigateTo, reLaunch } from '@tarojs/taro'
+import Taro, { Component, reLaunch, switchTab } from '@tarojs/taro'
+import { connect } from '@tarojs/redux'
 import { View, Input } from '@tarojs/components'
 
 import cs from 'classnames'
+
+import { showToast, showModal, showLoading, hideLoading } from '../../util/wx'
 
 import Layout from '../../component/layout'
 import Panel from '../../component/panel'
 import Btn from '../../component/button'
 
+import { addTeam } from '../../model/team/method'
+
 import './index.less'
 
+@connect(state => ({
+  user: state.user,
+  dict_team: state.dict_team,
+}), dispatch => ({
+  addTeam: (...rest) => dispatch(addTeam(...rest)),
+}))
 export default class Page extends Component {
   config = {
     navigationBarTitleText: '创建小组',
@@ -18,22 +29,7 @@ export default class Page extends Component {
     groupName: '',
     creatorName: '',
 
-    type: [],
-
-    typeList: [
-      {
-        code: 'work',
-        label: '工作'
-      },
-      {
-        code: 'tour',
-        label: '旅游'
-      },
-      {
-        code: 'life',
-        label: '生活'
-      },
-    ]
+    type: []
   }
 
   handleChange = (type, e) => {
@@ -45,35 +41,147 @@ export default class Page extends Component {
   handleSelectType = (v, i, e) => {
     const { type } = this.state
 
-    if (!type.includes(v.code)) {
+    if (!type.includes(v.dicVal)) {
       this.setState({
-        type: [v.code]
+        type: [v.dicVal]
       })
     }
   }
 
-  handleSubmit = e => {
-    const { r } = this.$router.params
+  handleSubmit = async e => {
+    const {
+      user: {
+        id: userId
+      },
+      addTeam
+    } = this.props
 
-    if (r) {
-      reLaunch({
-        url: r
-      })
+    const {
+      groupName,
+      creatorName,
+      type
+    } = this.state
+
+    const error = []
+
+    if (!groupName) {
+      error.push('请输入小组名称')
     }
+
+    if (!creatorName) {
+      error.push('请输入你在小组的名称')
+    }
+
+    if (!type.length) {
+      error.push('请选择小组类型')
+    }
+
+    if (error.length) {
+      showToast({
+        title: error[0],
+      })
+
+      return
+    }
+
+    showLoading({
+      title: '创建小组中',
+    })
+
+    const [err, res] = await addTeam({
+      userId,
+      groupName,
+      creatorName,
+      groupType: type[0],
+    })
+
+    hideLoading()
+
+    if (err) {
+      showToast({
+        title: err,
+      })
+
+      return
+    }
+
+    // 重置表单
+    this.setState({
+      groupName: '',
+      creatorName: '',
+
+      type: []
+    })
+
+    const sureDelete = await showModal({
+      showCancel: false,
+      content: '你已经成功创建了一个小组\n现在你可以选择',
+      confirmText: '进入小组'
+    })
+
+    switchTab({
+      url: '/pages/team_task/index'
+    })
   }
 
   render () {
     const {
       groupName,
       creatorName,
-      type,
-      typeList
+      type
     } = this.state
+
+    const {
+      user: {
+        nickName,
+        avatarUrl,
+      },
+      dict_team: {
+        data,
+        loading,
+        msg
+      }
+    } = this.props
+
+    let renderCheck = null
+
+    if (loading) {
+      renderCheck = <View>加载中</View>
+    } else if (msg) {
+      renderCheck = <View>类型获取失败</View>
+    } else if (!data.length) {
+      renderCheck = <View>没有数据</View>
+    } else {
+      renderCheck = (
+        <View className = 'type-wrap'>
+          {
+            data.map((v, i) => (
+              <View
+                className = {
+                  cs('type-checkbox', {
+                    [`type-checkbox-${ v.dicVal }`]: v.dicVal,
+                    ['type-checkbox-checked']: type.includes(v.dicVal)
+                  })
+                }
+                key = { i }
+                onClick = { this.handleSelectType.bind(this, v, i) }
+              >
+                { v.dicName }
+              </View>
+            ))
+          }
+        </View>
+      )
+    }
 
     return (
       <Layout padding = { [0, 60, 60] }>
         <Layout padding = { [0, 0, 60] }>
-          <Panel title = '你好 Jason\n请完善以下内容' avatar = 'a' collapse />
+          <Panel
+            title = { `你好 ${ nickName }\n请完善以下内容` }
+            avatar = { avatarUrl }
+            collapse
+          />
 
           <View className = 'form-group'>
             <Input placeholder = '独一无二的小组名称' value = { groupName } onInput = { this.handleChange.bind(this, 'groupName') } />
@@ -86,24 +194,7 @@ export default class Page extends Component {
           <View className = 'form-type'>
             <View className = 'form-type-title'>选定一个小组类型</View>
             <View className = 'form-type-content'>
-              <View className = 'type-wrap'>
-                {
-                  typeList.map((v, i) => (
-                    <View
-                      className = {
-                        cs('type-checkbox', {
-                          [`type-checkbox-${ v.code }`]: v.code,
-                          ['type-checkbox-checked']: type.includes(v.code)
-                        })
-                      }
-                      key = { i }
-                      onClick = { this.handleSelectType.bind(this, v, i) }
-                    >
-                      { v.label }
-                    </View>
-                  ))
-                }
-              </View>
+              { renderCheck }
             </View>
           </View>
         </Layout>

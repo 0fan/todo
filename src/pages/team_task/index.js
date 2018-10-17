@@ -2,7 +2,11 @@ import Taro, { Component } from '@tarojs/taro'
 import { connect } from '@tarojs/redux'
 import { View, Button, Input, Text, Textarea } from '@tarojs/components'
 
+import moment from 'moment'
 import cs from 'classnames'
+import qs from 'qs'
+
+import { showToast, showLoading, hideLoading, showModal } from '../../util/wx'
 
 import Layout from '../../component/layout'
 import Panel from '../../component/panel'
@@ -13,7 +17,7 @@ import FormControl from '../../component/form/formControl'
 import DatePicker from '../../component/datePicker'
 
 import { changeCurrentTeam } from '../../model/user'
-import { getTeam } from '../../model/team/method'
+import { getTeam, addTeamTask } from '../../model/team/method'
 
 import './index.less'
 
@@ -23,6 +27,7 @@ import './index.less'
 }), dispatch => ({
   changeCurrentTeam: (...rest) => dispatch(changeCurrentTeam(...rest)),
   getTeam: (...rest) => dispatch(getTeam(...rest)),
+  addTeamTask: (...rest) => dispatch(addTeamTask(...rest)),
 }))
 export default class Page extends Component {
   config = {
@@ -36,35 +41,9 @@ export default class Page extends Component {
   state = {
     visibleAdd: false,
 
-    endTime: '',
-
-    member: [],
-    memberList: [
-      {
-        id: '1',
-        nickName: '林凡'
-      },
-      {
-        id: '2',
-        nickName: '潇潇'
-      },
-      {
-        id: '3',
-        nickName: '刘看山'
-      },
-      {
-        id: '4',
-        nickName: '林凡'
-      },
-      {
-        id: '5',
-        nickName: '潇潇'
-      },
-      {
-        id: '6',
-        nickName: '刘看山'
-      }
-    ]
+    taskCentent: '',
+    members: [],
+    endTime: moment().add(3, 'd').format('YYYY-MM-DD HH:mm'),
   }
 
   handleShowAdd = () => {
@@ -83,31 +62,119 @@ export default class Page extends Component {
 
   handleSelectMember = (v, i, e) => {
     const {
-      member,
+      members,
       endTime
     } = this.state
 
-    if (member.includes(v.id)) {
+    if (members.includes(v.id)) {
       this.setState({
-        member: member.filter(id => id !== v.id)
+        members: members.filter(id => id !== v.id)
       })
     } else {
       this.setState({
-        member: member.concat(v.id)
+        members: members.concat(v.id)
       })
     }
   }
 
-  handleClick = (v, i, e) => {
-    console.log(v, i)
+  handleSubmit = async () => {
+    const {
+      user: {
+        id,
+        currentTeamId,
+      },
+      team: {
+        data
+      },
+      addTeamTask
+    } = this.props
+
+    const {
+      taskCentent,
+      members,
+      endTime,
+    } = this.state
+
+    const currentTeam = data[currentTeamId]
+
+    // 检验
+    const error = []
+
+    if (!currentTeam) {
+      error.push('没有当前小组数据')
+    }
+
+    if (!taskCentent) {
+      error.push('请输入任务内容')
+    }
+
+    if (!endTime)  {
+      error.push('请选择任务时间')
+    }
+
+    if (error.length) {
+      showToast({
+        title: error[0]
+      })
+
+      return
+    }
+    // 结束 检验
+
+    showLoading({
+      title: '创建任务中...',
+    })
+
+    const [err, res] = await addTeamTask({
+      creator: id,
+      groupId: currentTeamId,
+
+      taskCentent,
+      endTime,
+      members: [currentTeam.creator].concat(members).join(',')
+    })
+
+    hideLoading()
+
+    if (err) {
+      showToast({
+        title: err,
+      })
+
+      return
+    }
+
+    // 重置表单数据
+    this.setState({
+      // 重置表单数据
+      taskCentent: '',
+      endTime: moment().add(3, 'd').format('YYYY-MM-DD HH:mm'),
+      members: [],
+      visibleAdd: false
+    })
+
+    const sure = await showModal({
+      content: '你已经成功发布了一个任务\n现在你可以选择',
+      cancelText: '关闭',
+      confirmText: '继续发布'
+    })
+
+    if (sure) {
+      this.setState({
+        visibleAdd: true
+      })
+    }
   }
 
   render () {
     const {
       visibleAdd,
 
-      memberList,
-      member
+
+      // form
+      endTime,
+      members,
+      taskCentent
     } = this.state
 
     const {
@@ -140,10 +207,12 @@ export default class Page extends Component {
         >
           <View className = 'invite-btn' />
         </Panel>
+
         <Layout padding = { [100, 32, 64] }>
           <Sort>
             <View className = 'release-btn' onClick = { this.handleShowAdd } />
           </Sort>
+
           {
             currentTeam.task.map((v, i) => (
               <Card
@@ -156,13 +225,14 @@ export default class Page extends Component {
                 postponeCountDays = { v.postponeCountDays }
                 surplusCountDays = { v.surplusCountDays }
 
-                onClick = { this.handleClick.bind(this, v, i) }
+                to = { `/pages/task_detail/index?id=${ v.id }` }
 
                 key = { i }
               />
             ))
           }
         </Layout>
+
         <View className = { cs('modal-mask', { 'modal-mask-visible': visibleAdd }) } onClick = { this.handleHideAdd } />
         <View className = { cs('modal-dialog', { 'modal-dialog-visible': visibleAdd }) }>
           <View className = 'modal-dialog-close' onClick = { this.handleHideAdd } />
@@ -172,26 +242,38 @@ export default class Page extends Component {
             type = 'textarea'
             placeholder = '150字以内'
             maxlength = { 150 }
+
+            value = { taskCentent }
+            onChange = { this.handleChange.bind(this, 'taskCentent') }
           />
 
           <FormControl label = '参与者'>
-            <View className = 'member-wrap'>
-              {
-                memberList.map((v, i) => (
-                  <View
-                    className = {
-                      cs('member-checkbox', {
-                        ['member-checkbox-checked']: member.includes(v.id)
-                      })
-                    }
-                    key = { i }
-                    onClick = { this.handleSelectMember.bind(this, v, i) }
-                  >
-                    { v.nickName }
+            {
+              currentTeam.get_member_data_loading ?
+                <View>加载中</View> :
+                <View className = 'member-wrap'>
+                  <View className = { cs('member-checkbox', 'member-checkbox-checked') }>
+                    { currentTeam.creatorName }
                   </View>
-                ))
-              }
-            </View>
+                  {
+                    // 过滤到创建者的id
+                    // 因为创建者必须包含创建者
+                    currentTeam.member.filter(v => v.id !== currentTeam.creator).map((v, i) => (
+                      <View
+                        className = {
+                          cs('member-checkbox', {
+                            ['member-checkbox-checked']: members.includes(v.id)
+                          })
+                        }
+                        key = { i }
+                        onClick = { this.handleSelectMember.bind(this, v, i) }
+                      >
+                        { v.nickName }
+                      </View>
+                    ))
+                  }
+                </View>
+            }
           </FormControl>
 
           <DatePicker
@@ -201,7 +283,7 @@ export default class Page extends Component {
             onChange = { this.handleChange.bind(this, 'endTime') }
           />
 
-          <Btn>完成</Btn>
+          <Btn onClick = { this.handleSubmit }>完成</Btn>
         </View>
       </Layout>
     )

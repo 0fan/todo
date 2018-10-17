@@ -180,21 +180,23 @@ export function addTeam (
       return ['重复请求']
     }
 
-    dispatch(addTeamLoading())
+    dispatch(actionCreator.addTeamLoading())
 
     const [err, res] = await ajax(url.server + api.team.add, payload)
 
-    dispatch(addTeamLoaded())
+    dispatch(actionCreator.addTeamLoaded())
 
     if (err) {
-      dispatch(addTeamFail(err))
+      dispatch(actionCreator.addTeamFail(err))
+
+      return [err]
     }
 
     const {
       id
     } = res
 
-    await dispatch(addTeamSuccess())
+    await dispatch(actionCreator.addTeamSuccess())
     // 添加小组成功后重新获取列表且设置到添加的小组为当前小组
     dispatch(getTeam({}, { teamId: id }))
 
@@ -256,18 +258,20 @@ export function removeTeam (
       return ['重复请求']
     }
 
-    dispatch(removeTeamLoading())
+    dispatch(actionCreator.removeTeamLoading())
 
     const [err, res] = await ajax(url.server + api.team.remove, payload)
 
-    dispatch(removeTeamLoaded())
+    dispatch(actionCreator.removeTeamLoaded())
 
     if (err) {
-      dispatch(removeTeamFail(err))
+      dispatch(actionCreator.removeTeamFail(err))
+
+      return [err]
     }
 
-    await dispatch(removeTeamSuccess())
-    // 添加小组成功后重新获取列表
+    await dispatch(actionCreator.removeTeamSuccess())
+    // 删除小组成功后重新获取列表
     dispatch(getTeam({}))
 
     return [null, res]
@@ -290,13 +294,18 @@ export function getTeamTask (
 ) {
   return async (dispatch, getState) => {
     const {
-      // user: {
-      //   currentTeamId
-      // },
+      user: {
+        currentTeamId
+      },
       team: {
         data
       }
     } = getState()
+
+    // 如果没有传递teamId就取当前小组id
+    if (!teamId && currentTeamId) {
+      teamId = currentTeamId
+    }
 
     const item = data[teamId]
 
@@ -388,7 +397,7 @@ export function getTeamTask (
             ...v,
 
             // [Number Array] 任务参与者id
-            member: v.userinfos.map(v => v.id)
+            members: v.userinfos.map(_v => _v.id)
           })),
           get_task_data_query: assignQuery,
           get_task_data_init: true,
@@ -415,6 +424,26 @@ export function addTeamTask (payload = {}) {
     if (loading) {
       return ['重复请求']
     }
+
+    dispatch(actionCreator.addTeamTaskLoading())
+
+    const [err, res] = await ajax(url.server + api.task.add, payload)
+
+    dispatch(actionCreator.addTeamTaskLoaded())
+
+    if (err) {
+      dispatch(actionCreator.addTeamTaskFail(err))
+
+      return [err]
+    }
+
+    await dispatch(actionCreator.addTeamTaskSuccess())
+    // 重新获取任务列表
+    dispatch(getTeamTask())
+    dispatch(getMyTask())
+    // 包括个人任务列表
+
+    return [null, res]
   }
 }
 
@@ -426,12 +455,32 @@ export function addTeamTask (payload = {}) {
 export function editTeamTask (payload = {}) {
   return async (dispatch, getState) => {
     const {
-      add_team_task_loading: loading
+      edit_team_task_loading: loading
     } = getState()
 
     if (loading) {
       return ['重复请求']
     }
+
+    dispatch(actionCreator.editTeamTaskLoading())
+
+    const [err, res] = await ajax(url.server + api.task.edit, payload)
+
+    dispatch(actionCreator.editTeamTaskLoaded())
+
+    if (err) {
+      dispatch(actionCreator.editTeamTaskFail(err))
+
+      return [err]
+    }
+
+    await dispatch(actionCreator.editTeamTaskSuccess())
+    // 重新获取任务列表
+    dispatch(getTeamTask())
+    dispatch(getMyTask())
+    // 包括个人任务列表
+
+    return [null, res]
   }
 }
 
@@ -443,12 +492,32 @@ export function editTeamTask (payload = {}) {
 export function removeTeamTask (payload = {}) {
   return async (dispatch, getState) => {
     const {
-      add_team_task_loading: loading
+      remove_team_task_loading: loading
     } = getState()
 
     if (loading) {
       return ['重复请求']
     }
+
+    dispatch(actionCreator.removeTeamTaskLoading())
+
+    const [err, res] = await ajax(url.server + api.task.remove, payload)
+
+    dispatch(actionCreator.removeTeamTaskLoaded())
+
+    if (err) {
+      dispatch(actionCreator.removeTeamTaskFail(err))
+
+      return [err]
+    }
+
+    await dispatch(actionCreator.removeTeamTaskSuccess())
+    // 重新获取任务列表
+    dispatch(getTeamTask())
+    dispatch(getMyTask())
+    // 包括个人任务列表
+
+    return [null, res]
   }
 }
 

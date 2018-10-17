@@ -28,10 +28,6 @@ export default class Page extends Component {
     enablePullDownRefresh: true,
   }
 
-  handleClick = (v, i, e) => {
-    console.log(v, i)
-  }
-
   render () {
     const {
       user: {
@@ -75,7 +71,7 @@ export default class Page extends Component {
                 postponeCountDays = { v.postponeCountDays }
                 surplusCountDays = { v.surplusCountDays }
 
-                onClick = { this.handleClick.bind(this, v, i) }
+                to = { `/pages/task_detail/index?id=${ v.id }` }
 
                 key = { i }
               />

@@ -19,6 +19,15 @@ button {
   display: block;
   width: 100%;
 
+  &[plain] {
+    border: 1px solid #E9E9E9;
+    color: #000;
+
+    &.button-hover {
+      border: 1px solid darken(#E9E9E9, 10%);
+    }
+  }
+
   &[type=primary] {
     color: #fff;
     background-color: @primary;
@@ -113,16 +122,16 @@ textarea {
     background-position: center center;
   }
 
-  &-work { &:before { background-image: url('../asset/img/work_dark.png'); } }
-  &-life { &:before { background-image: url('../asset/img/life_dark.png'); } }
-  &-tour { &:before { background-image: url('../asset/img/tour_dark.png'); } }
+  &-work,&-1 { &:before { background-image: url('../asset/img/work_dark.png'); } }
+  &-life,&-3 { &:before { background-image: url('../asset/img/life_dark.png'); } }
+  &-tour,&-2 { &:before { background-image: url('../asset/img/tour_dark.png'); } }
 
   &-checked {
     border-color: @primary;
     color: @primary;
 
-    &.type-checkbox-work { &:before { background-image: url('../asset/img/work.png'); } }
-    &.type-checkbox-life { &:before { background-image: url('../asset/img/life.png'); } }
-    &.type-checkbox-tour { &:before { background-image: url('../asset/img/tour.png'); } }
+    &.type-checkbox-work,&.type-checkbox-1 { &:before { background-image: url('../asset/img/work.png'); } }
+    &.type-checkbox-life,&.type-checkbox-3 { &:before { background-image: url('../asset/img/life.png'); } }
+    &.type-checkbox-tour,&.type-checkbox-2 { &:before { background-image: url('../asset/img/tour.png'); } }
   }
 }

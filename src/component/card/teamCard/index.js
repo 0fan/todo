@@ -1,4 +1,4 @@
-import Taro, { Component, pxTransform } from '@tarojs/taro'
+import Taro, { Component, navigateTo } from '@tarojs/taro'
 import { View, Text } from '@tarojs/components'
 
 import cs from 'classnames'
@@ -7,11 +7,26 @@ import style from './index.less'
 
 export default class App extends Component {
   handleClick = e => {
+    const {
+      to,
+      disabled
+    } = this.props
+
+    if (disabled) {
+      return
+    }
+
+    if (to) {
+      navigateTo({
+        url: to
+      })
+    }
+
     this.props.onClick && this.props.onClick(e)
   }
 
   handleAddClick = e => {
-    this.props.onClick && this.props.onClick(e)
+    this.handleClick(e)
   }
 
   render () {
@@ -26,7 +41,8 @@ export default class App extends Component {
       // [String] 小组类型 work|tour|life
       type,
       // [Number] 成员数量
-      member = 0
+      member = 0,
+      disabled,
     } = this.props
 
     if (isAdd) {
@@ -38,7 +54,8 @@ export default class App extends Component {
     }
 
     const classString = cs('card', {
-      [`card-${ type }`]: type
+      [`card-${ type }`]: type,
+      'card-disabled': disabled,
     })
 
     return (

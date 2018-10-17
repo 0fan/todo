@@ -40,7 +40,7 @@ const initState = {
   get_task_refreshing: 0,
   get_task_init: false,
   get_task_query: {},
-  get_task_msg: false
+  get_task_msg: ''
 }
 
 const get_task_loading = 'task/get_task_loading'
@@ -63,7 +63,8 @@ export const getTaskSuccess = (payload, isRefresh) => ({ payload, isRefresh, typ
 export function getMyTask (
   payload = {},
   {
-    isRefresh
+    isRefresh,
+    ignoreCache
   } = {}
 ) {
   return async (dispatch, getState) => {

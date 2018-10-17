@@ -32,7 +32,7 @@ export default class App extends Component {
     this.setState({
       value: e.target.value
     }, () => {
-      this.props.onChange && this.props.onChange(this.state.value)
+      this.props.onChange && this.props.onChange(e)
     })
   }
 
@@ -120,7 +120,7 @@ export default class App extends Component {
                 disabled = { disabled }
                 maxlength = { maxlength }
 
-                onChange = { this.handleChange }
+                onInput = { this.handleChange }
                 onFocus = { this.handleFocus }
                 onBlur = { this.handleBlur }
               /> :

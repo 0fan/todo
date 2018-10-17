@@ -4,6 +4,7 @@ import store from '../util/store'
 import { getCode } from '../util/wx'
 
 import { getTeam, getTeamTask, getTeamMember } from './team/method'
+import { getTeamDict } from './dict_team'
 
 import { url, api } from '../config/api'
 
@@ -145,12 +146,12 @@ export function login (payload = {}, r) {
     })
 
     // 登录成功后初始化数据
+    // 获取小组类型字典
+    dispatch(getTeamDict())
     // 获取小组列表
     //  -> 小组列表数据成功后会切换第一个小组为当前小组
     //  -> 切换小组后会获取当前小组的成员和任务　
     dispatch(getTeam({ userId: id }))
-    // 获取个人任务
-    // 获取小组类型
 
     // 如果是新用户就必须要创建小组才能进行其他操作
     //
@@ -171,6 +172,9 @@ export function login (payload = {}, r) {
       switchTab({
         url: '/pages/team_task/index'
       })
+      // navigateTo({
+      //   url: '/pages/create_team/index'
+      // })
       // if (userType === '3') {
       //   reLaunch({
       //     url: '/pages/create_team/index?from=是从登录没有小组进来哒&r=/pages/i/index'

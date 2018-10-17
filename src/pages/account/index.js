@@ -40,8 +40,8 @@ export default class Page extends Component {
           extra = { `已加入${ Object.keys(data).length }个小组` }
         />
         <List>
-          <Item title = '我的信息' icon = 'i' to = '/' />
-          <Item title = '我的小组' icon = 'team' to = '/' />
+          <Item title = '我的信息' icon = 'i' to = '/pages/account/info/index' />
+          <Item title = '我的小组' icon = 'team' to = '/pages/account/my_team/index' />
         </List>
         <Brand />
       </Layout>

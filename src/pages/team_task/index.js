@@ -59,9 +59,21 @@ export default class Page extends Component {
 
   // 下拉刷新
   onPullDownRefresh = async () => {
+    const {
+      team: {
+        get_data_loading
+      }
+    } = this.props
+
+    if (get_data_loading) {
+      wx.stopPullDownRefresh() //停止下拉刷新
+
+      return
+    }
+
     wx.showNavigationBarLoading()
 
-    const [err, res] = await this.props.getTeam({}, { isRefresh: true })
+    const [err, res] = await this.getTeam()
 
     wx.hideNavigationBarLoading() //完成停止加载
     wx.stopPullDownRefresh() //停止下拉刷新
@@ -69,6 +81,10 @@ export default class Page extends Component {
     if (!err) {
       showToast({ title: '刷新成功' })
     }
+  }
+
+  getTeam = async => {
+    return this.props.getTeam({}, { isRefresh: true })
   }
 
   handleShowAdd = () => {
@@ -324,26 +340,37 @@ export default class Page extends Component {
       }
     } = this.props
 
-    const currentTeam = data[currentTeamId]
+    let currentTeam = data[currentTeamId]
 
     const renderChildren = null
 
-    if (get_data_loading || !get_data_init || !currentTeam) {
-      renderChildren = <Loading />
-    } else if (get_data_msg) {
-      renderChildren = <Fail><Text className = 'a' onClick = { this.getMyTask }>重试</Text></Fail>
+    if (get_data_loading) {
+      return <Loading />
+    }
+
+    // return 竟然不能控制代码流程...
+    // 这里临时补锅
+    if (!currentTeam) {
+      currentTeam = {
+        member: [],
+        task: []
+      }
+    }
+
+    if (get_data_msg) {
+      renderChildren = <Fail><Text className = 'a' onClick = { this.getTeam }>重试</Text></Fail>
     } else if (!currentTeam.task.length) {
       renderChildren = (
-        <View>
+        <Layout padding = { [100, 32, 64] }>
           <Sort>
             <View className = 'release-btn' onClick = { this.handleShowAdd } />
           </Sort>
           <Empty />
-        </View>
+        </Layout>
       )
     } else {
       renderChildren = (
-        <View>
+        <Layout padding = { [100, 32, 64] }>
           <Sort>
             <View className = 'release-btn' onClick = { this.handleShowAdd } />
           </Sort>
@@ -365,7 +392,7 @@ export default class Page extends Component {
               />
             ))
           }
-        </View>
+        </Layout>
       )
     }
 
@@ -392,13 +419,11 @@ export default class Page extends Component {
           {
             isTeamCreator ?
               <Btn className = 'invite-btn' openType = 'share'>邀请</Btn> :
-              null
+              ''
           }
         </Panel>
 
-        <Layout padding = { [100, 32, 64] }>
-          { renderChildren }
-        </Layout>
+        { renderChildren }
 
         <van-popup
           show = { visibleAdd }

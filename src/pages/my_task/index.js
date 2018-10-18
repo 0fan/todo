@@ -35,6 +35,18 @@ export default class Page extends Component {
 
   // 下拉刷新
   onPullDownRefresh = async () => {
+    const {
+      task: {
+        get_task_loading
+      }
+    } = this.props
+
+    if (get_task_loading) {
+      wx.stopPullDownRefresh() //停止下拉刷新
+
+      return
+    }
+
     wx.showNavigationBarLoading()
 
     const [err, res] = await this.getMyTask()

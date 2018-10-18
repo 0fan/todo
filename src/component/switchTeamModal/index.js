@@ -20,7 +20,7 @@ export default class App extends Component {
     data: []
   }
 
-  componentWillMount () {
+  componentDidMount () {
     const {
       visible = false,
       value = '',
@@ -35,28 +35,28 @@ export default class App extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
+    const obj = {}
+
     if (
       this.props.visible !== nextProps.visible
     ) {
-      this.setState({
-        visible: nextProps.visible
-      })
+      obj.visible = nextProps.visible
     }
 
     if (
       this.props.value !== nextProps.value
     ) {
-      this.setState({
-        value: nextProps.value
-      })
+      obj.value = nextProps.value
     }
 
     if (
       !_.isEqual(this.props.data, nextProps.data)
     ) {
-      this.setState({
-        data: nextProps.data
-      })
+      obj.data = nextProps.data
+    }
+
+    if (Object.keys(obj).length) {
+      this.setState(obj)
     }
   }
 

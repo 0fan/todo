@@ -1,7 +1,7 @@
 export const url = {
   // server: 'https://www.todooo.cn/app/',
-  // server: 'https://www.dzdyz.com/app/',
-  server: 'http://10.0.11.157:8080/app/',
+  server: 'https://www.dzdyz.com/app/',
+  // server: 'http://10.0.11.157:8080/app/',
 }
 
 export const api = {

@@ -9,6 +9,8 @@ import Panel from '../../component/panel'
 import Sort from '../../component/sort'
 import Card from '../../component/card/taskCard'
 import Empty from '../../component/empty'
+import Loading from '../../component/loading'
+import Fail from '../../component/fail'
 
 import { showToast } from '../../util/wx'
 
@@ -35,7 +37,7 @@ export default class Page extends Component {
   onPullDownRefresh = async () => {
     wx.showNavigationBarLoading()
 
-    const [err, res] = await this.props.getMyTask({}, { isRefresh: true })
+    const [err, res] = await this.getMyTask()
 
     wx.hideNavigationBarLoading() //完成停止加载
     wx.stopPullDownRefresh() //停止下拉刷新
@@ -52,6 +54,10 @@ export default class Page extends Component {
     }
   }
 
+  getMyTask = ()  => {
+    return this.props.getMyTask({}, { isRefresh: true })
+  }
+
   render () {
     const {
       user: {
@@ -59,7 +65,9 @@ export default class Page extends Component {
         avatarUrl,
       },
       task: {
+        get_task_init,
         get_task_loading,
+        get_task_msg,
         data,
 
         ingCount,
@@ -67,6 +75,45 @@ export default class Page extends Component {
         finishCount
       }
     } = this.props
+
+    const renderChildren = null
+
+    if (get_task_loading || !get_task_init) {
+      renderChildren = <Loading />
+    } else if (get_task_msg) {
+      renderChildren = <Fail><Text className = 'a' onClick = { this.getMyTask }>重试</Text></Fail>
+    } else if (!data.length) {
+      renderChildren = (
+        <View>
+          <Sort />
+          <Empty />
+        </View>
+      )
+    } else {
+      renderChildren = (
+        <View>
+          <Sort />
+          {
+            data.map((v, i) => (
+              <Card
+                title = { v.taskCentent }
+                project = { v.userGroup.groupName }
+
+                status = { v.status }
+
+                finishCountDays = { v.finishCountDays }
+                postponeCountDays = { v.postponeCountDays }
+                surplusCountDays = { v.surplusCountDays }
+
+                to = { `/pages/task_detail/index?id=${ v.id }` }
+
+                key = { i }
+              />
+            ))
+          }
+        </View>
+      )
+    }
 
     return (
       <Layout>
@@ -81,28 +128,9 @@ export default class Page extends Component {
 
           dark
         />
+
         <Layout padding = { [100, 32, 64] }>
-          <Sort />
-          {
-            data.length ?
-              data.map((v, i) => (
-                <Card
-                  title = { v.taskCentent }
-                  project = { v.userGroup.groupName }
-
-                  status = { v.status }
-
-                  finishCountDays = { v.finishCountDays }
-                  postponeCountDays = { v.postponeCountDays }
-                  surplusCountDays = { v.surplusCountDays }
-
-                  to = { `/pages/task_detail/index?id=${ v.id }` }
-
-                  key = { i }
-                />
-              )) :
-              <Empty />
-          }
+          { renderChildren }
         </Layout>
       </Layout>
     )

@@ -2,6 +2,7 @@ import Taro, { Component, navigateTo } from '@tarojs/taro'
 import { connect } from '@tarojs/redux'
 import { View, Button, Input, Text, Textarea } from '@tarojs/components'
 
+import _ from 'lodash'
 import moment from 'moment'
 import cs from 'classnames'
 import qs from 'qs'
@@ -15,8 +16,10 @@ import Card from '../../component/card/taskCard'
 import Btn from '../../component/button'
 import FormControl from '../../component/form/formControl'
 import DatePicker from '../../component/datePicker'
-import Empty from '../../component/empty'
 import SwitchTeamModal from '../../component/switchTeamModal'
+import Empty from '../../component/empty'
+import Loading from '../../component/loading'
+import Fail from '../../component/fail'
 
 import { changeCurrentTeam } from '../../model/user'
 import { getTeam, addTeamTask } from '../../model/team/method'
@@ -316,28 +319,60 @@ export default class Page extends Component {
       team: {
         data,
         get_data_loading,
+        get_data_init,
         get_data_msg
       }
     } = this.props
 
     const currentTeam = data[currentTeamId]
 
-    if (get_data_loading) {
-      return <View>加载中</View>
-    }
+    const renderChildren = null
 
-    if (get_data_msg) {
-      return (
-        <View>{ get_data_msg }</View>
+    if (get_data_loading || !get_data_init || !currentTeam) {
+      renderChildren = <Loading />
+    } else if (get_data_msg) {
+      renderChildren = <Fail><Text className = 'a' onClick = { this.getMyTask }>重试</Text></Fail>
+    } else if (!currentTeam.task.length) {
+      renderChildren = (
+        <View>
+          <Sort>
+            <View className = 'release-btn' onClick = { this.handleShowAdd } />
+          </Sort>
+          <Empty />
+        </View>
       )
-    }
+    } else {
+      renderChildren = (
+        <View>
+          <Sort>
+            <View className = 'release-btn' onClick = { this.handleShowAdd } />
+          </Sort>
+          {
+            currentTeam.task.map((v, i) => (
+              <Card
+                title = { v.taskCentent }
+                project = { v.userGroup.groupName }
 
-    if (!currentTeam) {
-      return null
+                status = { v.status }
+
+                finishCountDays = { v.finishCountDays }
+                postponeCountDays = { v.postponeCountDays }
+                surplusCountDays = { v.surplusCountDays }
+
+                to = { `/pages/task_detail/index?id=${ v.id }` }
+
+                key = { i }
+              />
+            ))
+          }
+        </View>
+      )
     }
 
     // 是否是小组创建者
     const isTeamCreator = currentTeam.creator === id
+    const listTeam = Object.keys(data).map(k => data[k])
+    // console.log(listTeam)
 
     return (
       <Layout>
@@ -351,7 +386,7 @@ export default class Page extends Component {
           postponeCount = { currentTeam.postponeCount }
 
           dark
-          visibleSwitch = { Object.keys(data).length > 1 }
+          visibleSwitch = { listTeam.length > 1 }
           onSwitch = { this.handleShowSwitch }
         >
           {
@@ -362,30 +397,7 @@ export default class Page extends Component {
         </Panel>
 
         <Layout padding = { [100, 32, 64] }>
-          <Sort>
-            <View className = 'release-btn' onClick = { this.handleShowAdd } />
-          </Sort>
-
-          {
-            currentTeam.task.length ?
-              currentTeam.task.map((v, i) => (
-                <Card
-                  title = { v.taskCentent }
-                  project = { v.userGroup.groupName }
-
-                  status = { v.status }
-
-                  finishCountDays = { v.finishCountDays }
-                  postponeCountDays = { v.postponeCountDays }
-                  surplusCountDays = { v.surplusCountDays }
-
-                  to = { `/pages/task_detail/index?id=${ v.id }` }
-
-                  key = { i }
-                />
-              )) :
-              <Empty />
-          }
+          { renderChildren }
         </Layout>
 
         <van-popup
@@ -445,7 +457,7 @@ export default class Page extends Component {
         <SwitchTeamModal
           visible = { visibleSwitch }
           value = { currentTeamId }
-          data = { Object.keys(data).map(k => data[k]) }
+          data = { listTeam }
           onOk = { this.handleSwitchTeam }
           onClose = { this.handleHideSwitch }
         />

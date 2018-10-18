@@ -12,9 +12,10 @@ import Empty from '../../component/empty'
 import Loading from '../../component/loading'
 import Fail from '../../component/fail'
 
-import { showToast } from '../../util/wx'
+import { showToast, showModal, showLoading, hideLoading } from '../../util/wx'
 
 import { getMyTask } from '../../model/task'
+import { removeTeamTask } from '../../model/team/method'
 
 import './index.less'
 
@@ -23,6 +24,7 @@ import './index.less'
   task: state.task,
 }), dispatch => ({
   getMyTask: (...rest) => dispatch(getMyTask(...rest)),
+  removeTeamTask: (...rest) => dispatch(removeTeamTask(...rest)),
 }))
 export default class Page extends Component {
   config = {
@@ -68,6 +70,40 @@ export default class Page extends Component {
 
   getMyTask = ()  => {
     return this.props.getMyTask({}, { isRefresh: true })
+  }
+
+  // 长按删除
+  handleLongPress = async (v, i, e) => {
+    const {
+      removeTeamTask
+    } = this.props
+
+    const sure = await showModal({ content: '确认删除此任务吗?' })
+
+    if (!sure) {
+      return
+    }
+
+    showLoading({
+      title: '删除中',
+    })
+
+    const [err, res] = await removeTeamTask({
+      taskId: v.id
+    })
+
+    if (err) {
+      showToast({
+        title: err
+      })
+
+      return
+    }
+
+    showToast({
+      title: '删除成功',
+      icon: 'success'
+    })
   }
 
   render () {
@@ -118,6 +154,7 @@ export default class Page extends Component {
                 surplusCountDays = { v.surplusCountDays }
 
                 to = { `/pages/task_detail/index?id=${ v.id }` }
+                onLongPress = { this.handleLongPress.bind(this, v, i) }
 
                 key = { i }
               />

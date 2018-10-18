@@ -25,6 +25,10 @@ export default class App extends Component {
     this.props.onClick && this.props.onClick(e)
   }
 
+  handleLongPress = (e) => {
+    this.props.onLongPress && this.props.onLongPress(e)
+  }
+
   render () {
     const {
       title,
@@ -46,7 +50,11 @@ export default class App extends Component {
     })
 
     return (
-      <View className = { classString } onClick = { this.handleClick }>
+      <View
+        className = { classString }
+        onClick = { this.handleClick }
+        onLongPress = { this.handleLongPress }
+      >
         <View className = 'card-left'>
           <View className = 'card-status' />
         </View>

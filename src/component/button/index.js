@@ -1,8 +1,12 @@
 import Taro, { Component } from '@tarojs/taro'
 import { View, Form, Button } from '@tarojs/components'
 
+import cs from 'classnames'
+
 import ajax from '../../util/ajax'
 import { url, api } from '../../config/api'
+
+import './index.less'
 
 export default class App extends Component {
   handleSubmit = e => {
@@ -26,7 +30,11 @@ export default class App extends Component {
       onGetUserInfo,
       plain,
       disabled,
+
+      className
     } = this.props
+
+    const classString = cs(className)
 
     return (
       <Form onSubmit = { this.handleSubmit } reportSubmit = { true }>
@@ -35,6 +43,8 @@ export default class App extends Component {
           openType = { openType }
           plain = { plain }
           disabled = { disabled }
+
+          className = { classString }
 
           formType = 'submit'
 

@@ -10,7 +10,11 @@ import './index.less'
 
 export default class App extends Component {
   handleSwitchClick = e => {
-    this.props.onSwitch && this.props.onSwitch()
+    this.props.visibleSwitch && this.props.onSwitch && this.props.onSwitch()
+  }
+
+  handleExtraClick = e => {
+    this.props.onExtraClick && this.props.onExtraClick(e)
   }
 
   render () {
@@ -90,15 +94,15 @@ export default class App extends Component {
         <View className = 'panel-body'>
           <View className = 'panel-content'>
             <View className = 'h1'>
-              <Text>{ title }</Text>
+              <Text onClick = { this.handleSwitchClick }>{ title }</Text>
               {
                 visibleSwitch ?
-                  <Text className = 'switch' onClick = { this.handleSwitchClick } /> :
+                  <Text onClick = { this.handleSwitchClick } className = 'switch' /> :
                   null
               }
             </View>
             {
-              extra ? <View className = 'extra'>{ extra }</View> : null
+              extra ? <View className = 'extra' onClick = { this.handleExtraClick }>{ extra }</View> : null
             }
           </View>
           <View className = 'panel-right'>

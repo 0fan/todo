@@ -34,8 +34,35 @@
       color: #4A4A4A !important;
     }
   }
+
+  &-has-value {
+    .form-control {
+      background-repeat: no-repeat;
+      background-size: 36px 36px;
+      background-image: url('../../../asset/img/edit.png');
+      background-position: right 26px center;
+    }
+  }
 }
 
 .form-control {
   .formControl();
+}
+
+.status {
+  &:before {
+    vertical-align: -2px;
+    content: '';
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    margin-right: 10px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center center;
+  }
+
+  &-progress { &:before { background-image: url('../../../asset/img/progress.png'); } }
+  &-success { &:before { background-image: url('../../../asset/img/complete.png'); } }
+  &-fail { &:before { background-image: url('../../../asset/img/delay.png'); } }
 }

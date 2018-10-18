@@ -9,14 +9,20 @@ export default class App extends Component {
   constructor (props) {
     super(props)
 
+    this.state = {
+      value: '',
+      edit: false
+    }
+  }
+
+  componentWillMount () {
     const {
       value = ''
     } = this.props
 
-    this.state = {
-      value,
-      edit: false
-    }
+    this.setState({
+      value
+    })
   }
 
   // 同步数据
@@ -52,6 +58,7 @@ export default class App extends Component {
     const {
       label,
       extra,
+      extraClass = '',
 
       disabled,
       placeholder,
@@ -68,6 +75,7 @@ export default class App extends Component {
 
     const classString = cs('form-group', {
       ['form-group-edit']: edit,
+      ['form-group-has-value']: value || type === 'label' && !disabled,
       ['form-group-disabled']: disabled,
     })
 
@@ -81,7 +89,7 @@ export default class App extends Component {
               </View>
               {
                 extra ?
-                  <View className = 'form-group-extra'>
+                  <View className = { cs('form-group-extra', extraClass) }>
                     { extra }
                   </View> :
                   null
@@ -105,7 +113,7 @@ export default class App extends Component {
                   placeholder = { placeholder }
                   disabled = { disabled }
 
-                  onChange = { this.handleChange }
+                  onInput = { this.handleChange }
                   onFocus = { this.handleFocus }
                   onBlur = { this.handleBlur }
                 />

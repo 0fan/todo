@@ -24,7 +24,7 @@ export default class Page extends Component {
   config = {
     navigationBarTitleText: '小组详情',
     backgroundColor: '#eee',
-    enablePullDownRefresh: true,
+    // enablePullDownRefresh: true,
   }
 
   state = {
@@ -91,8 +91,48 @@ export default class Page extends Component {
     })
   }
 
-  handleClick = async (v, i, e) => {
-    console.log(v)
+  /**
+   * [点击用户信息删除成员]
+   * [1.只能当自己是管理员才能删除]
+   * [2.不能删除自己]
+   * @param  {Object} v [数据]
+   * @param  {Number} i [下标]
+   * @param  {event}  e
+   * @return {void}
+   */
+  handleMemberClick = async (v, i, e) => {
+    const {
+      user: {
+        id: userId
+      },
+      team: {
+        data
+      },
+    } = this.props
+
+    const {
+      // 小组id
+      id
+    } = this.state
+
+    const teamData = data[id]
+
+    if (!teamData) {
+      return null
+    }
+
+    if (
+      String(userId) === String(teamData.creator) &&
+      v.id !== userId
+    ) {
+      const sure = await showModal({ content: `确认删除该[${ v.nickName }]吗?` })
+
+      if (!sure) {
+        return
+      }
+
+
+    }
   }
 
   // 解散小组
@@ -138,34 +178,96 @@ export default class Page extends Component {
     navigateBack()
   }
 
+  // 退出小组
+  handleQuit = async () => {
+    const {
+      user: {
+        id
+      }
+    } = this.props
+
+    const sure = await showModal({ content: '确认退出该小组吗?' })
+
+    if (!sure) {
+      return
+    }
+
+    showLoading({
+      title: '退出小组中',
+    })
+
+    const [err, res] = await this.props.removeTeam({
+      excType: 2,
+      groupId: this.state.id,
+      userId: id
+    }, {
+      id: this.state.id,
+    })
+
+    wx.hideLoading()
+
+    if (err) {
+      showToast({
+        title: err
+      })
+
+      return
+    }
+
+    await showToast({
+      title: '退出成功'
+    })
+
+    navigateBack()
+  }
+
   render () {
     const {
+      id,
       groupName,
       member
     } = this.state
 
+    const {
+      team: {
+        data
+      },
+      user
+    } = this.props
+
+    const teamData = data[id]
+
+    if (!teamData) {
+      return null
+    }
+
     return (
-      <Layout padding = { [0, 60, 60] }>
-        <Panel title = { groupName } collapse />
-        <Layout padding = { [56, 0, 60] }>
-          {
-            member.map((v, i) => (
-              <Card
-                avatar = { v.avatarUrl }
-                nickName = { v.nickName }
-                isCreator = { v.isGroupLeader === '1' }
-                disabled = { v.isGroupLeader === '1' }
+      <View className = 'page'>
+        <View className = 'page-content'>
+          <Panel title = { groupName } collapse />
+          <Layout padding = { [56, 0, 60] }>
+            {
+              member.map((v, i) => (
+                <Card
+                  avatar = { v.avatarUrl }
+                  nickName = { v.nickName }
+                  isCreator = { v.isGroupLeader === '1' }
 
-                onClick = { this.handleClick.bind(this, v, i) }
+                  onClick = { this.handleMemberClick.bind(this, v, i) }
 
-                key = { i }
-              />
-            ))
-          }
-        </Layout>
+                  key = { i }
+                />
+              ))
+            }
+          </Layout>
+        </View>
 
-        <Btn onClick = { this.handleDelete }>退出该小组</Btn>
-      </Layout>
+        {
+          teamData.creator === user.id ?
+            <Btn onClick = { this.handleDelete }>解散该小组</Btn> :
+            <Btn onClick = { this.handleQuit }>退出该小组</Btn>
+        }
+      </View>
     )
   }
 }

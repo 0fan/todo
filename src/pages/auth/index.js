@@ -1,6 +1,6 @@
 import Taro, { Component } from '@tarojs/taro'
 import { connect } from '@tarojs/redux'
-import { View, Text } from '@tarojs/components'
+import { View, Text, Image } from '@tarojs/components'
 
 import Layout from '../../component/layout'
 import Btn from '../../component/button'
@@ -105,7 +105,9 @@ export default class Page extends Component {
 
     return (
       <Layout padding = { [0, 112] }>
-        <View className = 'brand' style = { { backgroundImage: `url(${ brand })` } } />
+        <View className = 'brand'>
+          <Image src = { brand } />
+        </View>
 
         { renderBottom }
 

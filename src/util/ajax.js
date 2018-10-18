@@ -1,4 +1,6 @@
-import { request } from '@tarojs/taro'
+import { request, reLaunch } from '@tarojs/taro'
+import store from '../util/store'
+import { showModal } from '../util/wx'
 
 import qs from 'qs'
 
@@ -34,7 +36,7 @@ export default (
 
     ...config,
 
-    success: res  => {
+    success: async res  => {
       const {
         data,
         data: {
@@ -43,6 +45,22 @@ export default (
           object
         }
       } = res
+
+      if (code === -2) {
+        store.clear()
+
+        const sure = await showModal({
+          showCancel: false,
+          content: '登录失效或未登录,将重新登录',
+          confirmText: '确定',
+        })
+
+        reLaunch({
+          url: '/pages/auth/index'
+        })
+
+        return resolve([message || '请求失败'])
+      }
 
       if (code !== 0) {
         return resolve([message || '请求失败'])

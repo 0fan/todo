@@ -34,30 +34,28 @@
 }
 
 .hairline(@position, @color: @line-color) when (@position = left) {
-  &:before {
+  &:after {
     content: '';
     position: absolute;
     left: 0;
-    top: 0;
     bottom: auto;
     right: auto;
+    top: 0;
     width: 1px;
     height: 100%;
     background-color: @color;
     display: block;
     z-index: 15;
-    transform-origin: 0% 50%;
+    transform-origin: 0 100%;
 
     @media only screen and (-webkit-min-device-pixel-ratio:2) {
-      transform: scaleY(0.5);
+      transform: scaleX(0.5);
     }
 
     @media only screen and (-webkit-min-device-pixel-ratio:3) {
-      transform: scaleY(0.33);
+      transform: scaleX(0.33);
     }
-
   }
-
 }
 
 .hairline(@position, @color: @line-color) when (@position = bottom) {
@@ -103,11 +101,11 @@
     transform-origin: 100% 50%;
 
     @media only screen and (-webkit-min-device-pixel-ratio:2) {
-      transform: scaleY(0.5);
+      transform: scaleX(0.5);
     }
 
     @media only screen and (-webkit-min-device-pixel-ratio:3) {
-      transform: scaleY(0.33);
+      transform: scaleX(0.33);
     }
 
   }
@@ -158,4 +156,12 @@
   border: 1px solid @color;
   height: @height;
   line-height: @height - (20px * 2);
+}
+
+.fade(@color: #eee) {
+  transition: background-color .2s;
+
+  &:active {
+    background-color: @color;
+  }
 }

@@ -1,4 +1,5 @@
-import Taro, { Component } from '@tarojs/taro'
+import Taro, { Component, reLaunch, switchTab } from '@tarojs/taro'
+import { connect } from '@tarojs/redux'
 import '@tarojs/async-await'
 
 import { createStore, applyMiddleware } from 'redux'
@@ -8,14 +9,21 @@ import { Provider } from '@tarojs/redux'
 
 import reducer from './model'
 
+import login from './config/login'
+
 // global style
 import './less/index.less'
 
 const store = createStore(reducer, applyMiddleware(
   thunkMiddleware,
-  createLogger()
+  // createLogger()
 ))
 
+login(store)
+
+@connect(state => ({
+  user: state.user
+}), dispatch => ({}))
 class App extends Component {
 
   config = {
@@ -26,10 +34,10 @@ class App extends Component {
       navigationBarTextStyle: 'black'
     },
     pages: [
-      'pages/auth/index',
+      // 'pages/auth/index',
       'pages/my_task/index',
-      'pages/team_task/index',
       'pages/account/index',
+      'pages/team_task/index',
 
       'pages/account/info/index',
       'pages/account/my_team/index',
@@ -39,7 +47,7 @@ class App extends Component {
       'pages/create_team/index',
       'pages/invite/index',
 
-      // 'pages/auth/index',
+      'pages/auth/index',
     ],
     tabBar: {
       color: '#A9A9A9',
@@ -48,7 +56,7 @@ class App extends Component {
       borderStyle: 'dark',
 
       list: [{
-        text: '任务',
+        text: '今天',
         pagePath: 'pages/my_task/index',
         iconPath: './asset/img/nav_i_n.png',
         selectedIconPath: './asset/img/nav_i_h.png',
@@ -64,6 +72,15 @@ class App extends Component {
         selectedIconPath: './asset/img/nav_account_h.png',
       }]
     },
+  }
+
+  // 对应 app 的 onLaunch
+  componentWillMount () {
+    if (!this.props.user.isLogin) {
+      reLaunch({
+        url: '/pages/auth/index'
+      })
+    }
   }
 
   componentDidMount () {}

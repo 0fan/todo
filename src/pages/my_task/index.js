@@ -8,8 +8,11 @@ import Layout from '../../component/layout'
 import Panel from '../../component/panel'
 import Sort from '../../component/sort'
 import Card from '../../component/card/taskCard'
+import Empty from '../../component/empty'
 
-import { getMyTask } from '../../model/user'
+import { showToast } from '../../util/wx'
+
+import { getMyTask } from '../../model/task'
 
 import './index.less'
 
@@ -26,6 +29,27 @@ export default class Page extends Component {
     navigationBarTextStyle: 'white',
     backgroundColor: '#257AFF',
     enablePullDownRefresh: true,
+  }
+
+  // 下拉刷新
+  onPullDownRefresh = async () => {
+    wx.showNavigationBarLoading()
+
+    const [err, res] = await this.props.getMyTask({}, { isRefresh: true })
+
+    wx.hideNavigationBarLoading() //完成停止加载
+    wx.stopPullDownRefresh() //停止下拉刷新
+
+    if (!err) {
+      showToast({ title: '刷新成功' })
+    }
+  }
+
+  onShareAppMessage = res => {
+    return {
+      title: '凸度',
+      path: '/pages/my_task/index'
+    }
   }
 
   render () {
@@ -60,22 +84,24 @@ export default class Page extends Component {
         <Layout padding = { [100, 32, 64] }>
           <Sort />
           {
-            data.map((v, i) => (
-              <Card
-                title = { v.taskCentent }
-                project = { v.userGroup.groupName }
+            data.length ?
+              data.map((v, i) => (
+                <Card
+                  title = { v.taskCentent }
+                  project = { v.userGroup.groupName }
 
-                status = { v.status }
+                  status = { v.status }
 
-                finishCountDays = { v.finishCountDays }
-                postponeCountDays = { v.postponeCountDays }
-                surplusCountDays = { v.surplusCountDays }
+                  finishCountDays = { v.finishCountDays }
+                  postponeCountDays = { v.postponeCountDays }
+                  surplusCountDays = { v.surplusCountDays }
 
-                to = { `/pages/task_detail/index?id=${ v.id }` }
+                  to = { `/pages/task_detail/index?id=${ v.id }` }
 
-                key = { i }
-              />
-            ))
+                  key = { i }
+                />
+              )) :
+              <Empty />
           }
         </Layout>
       </Layout>

@@ -164,26 +164,28 @@ export function login (payload = {}, r) {
     // 如果登录失效也得重新登录
 
     // 所以增加一个重定向参数, 如果指定了具体的跳转地址则登录成功后跳到指定的地址去
-    if (r) {
-      navigateTo({
-        url: r
-      })
-    } else {
-      switchTab({
-        url: '/pages/team_task/index'
-      })
-      // navigateTo({
-      //   url: '/pages/create_team/index'
-      // })
-      // if (userType === '3') {
-      //   reLaunch({
-      //     url: '/pages/create_team/index?from=是从登录没有小组进来哒&r=/pages/i/index'
-      //   })
-      // } else {
-      //   switchTab({
-      //     url: '/pages/my_task/index'
-      //   })
-      // }
+    if (r !== false) {
+      if (r) {
+        navigateTo({
+          url: r
+        })
+      } else {
+        switchTab({
+          url: '/pages/my_task/index'
+        })
+        // navigateTo({
+        //   url: '/pages/account/info/index'
+        // })
+        // if (userType === '3') {
+        //   reLaunch({
+        //     url: '/pages/create_team/index?from=是从登录没有小组进来哒&r=/pages/i/index'
+        //   })
+        // } else {
+        //   switchTab({
+        //     url: '/pages/my_task/index'
+        //   })
+        // }
+      }
     }
 
     return [null, res]

@@ -16,7 +16,7 @@ export default class Page extends Component {
   config = {
     navigationBarTitleText: '我的小组',
     backgroundColor: '#eee',
-    enablePullDownRefresh: true,
+    // enablePullDownRefresh: true,
   }
 
   render () {

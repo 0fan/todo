@@ -21,6 +21,13 @@ export default class Page extends Component {
     navigationBarTitleText: '个人中心',
   }
 
+  onShareAppMessage = res => {
+    return {
+      title: '凸度',
+      path: '/pages/my_task/index'
+    }
+  }
+
   render () {
     const {
       user: {

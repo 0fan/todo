@@ -44,11 +44,11 @@ const date = [
       value: d
     }
   }),
-  [...Array(60)].map((v, i) => {
+  [...Array(3)].map((v, i) => {
     const d = i
 
     return {
-      label: d + '分',
+      label: d * 15 < 10 ? `0${ d }分` : d * 15 + '分',
       value: d
     }
   }),

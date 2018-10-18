@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { setStorageSync, getStorageSync, removeStorageSync, clearStorage } from '@tarojs/taro'
+import { setStorageSync, getStorageSync, removeStorageSync, clearStorage, clearStorageSync } from '@tarojs/taro'
 
 /**
  * 封装的store方法

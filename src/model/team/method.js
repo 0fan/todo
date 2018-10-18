@@ -222,17 +222,19 @@ export function editTeam (
       return ['重复请求']
     }
 
-    dispatch(editTeamLoading())
+    dispatch(actionCreator.editTeamLoading())
 
-    const [err, res] = await ajax(url.server + api.team.edit, payload)
+    const [err, res] = await ajax(url.server + api.team.editNikeName, payload)
 
-    dispatch(editTeamLoaded())
+    dispatch(actionCreator.editTeamLoaded())
 
     if (err) {
-      dispatch(editTeamFail(err))
+      dispatch(actionCreator.editTeamFail(err))
+
+      return [err]
     }
 
-    await dispatch(editTeamSuccess())
+    await dispatch(actionCreator.editTeamSuccess())
     // 添加小组成功后重新获取列表
     dispatch(getTeam({}, { teamId: payload.groupId }))
 
@@ -325,8 +327,8 @@ export function getTeamTask (
     if (
       item.get_task_data_init &&
       !isRefresh &&
-      !ignoreCache &&
-      _.isEqual(payload, assignQuery)
+      !ignoreCache
+      // _.isEqual(payload, assignQuery)
     ) {
       return [null, item.task]
     }
@@ -439,8 +441,8 @@ export function addTeamTask (payload = {}) {
 
     await dispatch(actionCreator.addTeamTaskSuccess())
     // 重新获取任务列表
-    dispatch(getTeamTask())
-    dispatch(getMyTask())
+    dispatch(getTeamTask({}, { isRefresh: true }))
+    dispatch(getMyTask({}, { isRefresh: true }))
     // 包括个人任务列表
 
     return [null, res]
@@ -476,8 +478,8 @@ export function editTeamTask (payload = {}) {
 
     await dispatch(actionCreator.editTeamTaskSuccess())
     // 重新获取任务列表
-    dispatch(getTeamTask())
-    dispatch(getMyTask())
+    dispatch(getTeamTask({}, { isRefresh: true }))
+    dispatch(getMyTask({}, { isRefresh: true }))
     // 包括个人任务列表
 
     return [null, res]
@@ -513,8 +515,8 @@ export function removeTeamTask (payload = {}) {
 
     await dispatch(actionCreator.removeTeamTaskSuccess())
     // 重新获取任务列表
-    dispatch(getTeamTask())
-    dispatch(getMyTask())
+    dispatch(getTeamTask({}, { isRefresh: true }))
+    dispatch(getMyTask({}, { isRefresh: true }))
     // 包括个人任务列表
 
     return [null, res]
@@ -563,8 +565,8 @@ export function getTeamMember (
     if (
       item.get_member_data_init &&
       !isRefresh &&
-      !ignoreCache &&
-      _.isEqual(payload, assignQuery)
+      !ignoreCache
+      // _.isEqual(payload, assignQuery)
     ) {
       return [null, item.member]
     }
@@ -642,15 +644,32 @@ export function getTeamMember (
  * @param  {Object} payload [请求参数]
  * @return {[err, res]}
  */
-export function addTeamMember (payload = {}) {
+export function addTeamMember (payload = {}, id) {
   return async (dispatch, getState) => {
     const {
-      add_team_task_loading: loading
+      add_team_member_loading: loading
     } = getState()
 
     if (loading) {
       return ['重复请求']
     }
+
+    dispatch(actionCreator.addTeamMemberLoading())
+
+    const [err, res] = await ajax(url.server + api.team.join, payload)
+
+    dispatch(actionCreator.addTeamMemberLoaded())
+
+    if (err) {
+      dispatch(actionCreator.addTeamMemberFail(payload))
+
+      return [err]
+    }
+
+    await dispatch(actionCreator.addTeamMemberSuccess())
+    await dispatch(getTeam({}, { teamId: id, isRefresh: true }))
+
+    return [null, res]
   }
 }
 
@@ -662,7 +681,7 @@ export function addTeamMember (payload = {}) {
 export function removeTeamMember (payload = {}) {
   return async (dispatch, getState) => {
     const {
-      add_team_task_loading: loading
+      remove_team_member_loading: loading
     } = getState()
 
     if (loading) {

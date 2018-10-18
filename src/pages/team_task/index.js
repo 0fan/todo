@@ -1,4 +1,4 @@
-import Taro, { Component } from '@tarojs/taro'
+import Taro, { Component, navigateTo } from '@tarojs/taro'
 import { connect } from '@tarojs/redux'
 import { View, Button, Input, Text, Textarea } from '@tarojs/components'
 
@@ -15,6 +15,8 @@ import Card from '../../component/card/taskCard'
 import Btn from '../../component/button'
 import FormControl from '../../component/form/formControl'
 import DatePicker from '../../component/datePicker'
+import Empty from '../../component/empty'
+import SwitchTeamModal from '../../component/switchTeamModal'
 
 import { changeCurrentTeam } from '../../model/user'
 import { getTeam, addTeamTask } from '../../model/team/method'
@@ -36,14 +38,34 @@ export default class Page extends Component {
     navigationBarTextStyle: 'white',
     backgroundColor: '#257AFF',
     enablePullDownRefresh: true,
+
+    // 第三方组件
+    usingComponents: {
+      'van-popup': '../../component/vant/popup/index',
+    }
   }
 
   state = {
     visibleAdd: false,
+    visibleSwitch: false,
 
     taskCentent: '',
     members: [],
     endTime: moment().add(3, 'd').format('YYYY-MM-DD HH:mm'),
+  }
+
+  // 下拉刷新
+  onPullDownRefresh = async () => {
+    wx.showNavigationBarLoading()
+
+    const [err, res] = await this.props.getTeam({}, { isRefresh: true })
+
+    wx.hideNavigationBarLoading() //完成停止加载
+    wx.stopPullDownRefresh() //停止下拉刷新
+
+    if (!err) {
+      showToast({ title: '刷新成功' })
+    }
   }
 
   handleShowAdd = () => {
@@ -77,6 +99,69 @@ export default class Page extends Component {
     }
   }
 
+  /**
+   * [微信分享事件]
+   * @param  {[type]} res [description]
+   * @return {void}
+   */
+  onShareAppMessage = res => {
+    const {
+      user: {
+        id,
+        nickName,
+        avatarUrl,
+        currentTeamId,
+      },
+      team: {
+        data,
+      },
+    } = this.props
+
+    const currentTeam = data[currentTeamId]
+
+    if (!currentTeam) {
+      showToast({
+        title: '没有获取到小组信息',
+      })
+
+      return
+    }
+
+    // 是否是小组创建者
+    const isTeamCreator = currentTeam.creator === id
+
+    if (!isTeamCreator) {
+      return {
+        title: '凸度',
+        path: '/pages/my_task/index'
+      }
+    }
+
+    // Taro.navigateTo({
+    //   url: `/pages/invite/index?${ qs.stringify({
+    //     // 发布者的名称
+    //     nickName,
+    //     // 发布者的头像
+    //     avatarUrl,
+    //     // 当前小组信息
+    //     ...currentTeam
+    //   }) }`
+    // })
+
+    return {
+      title: `${ nickName }邀请你加入${ currentTeam.groupName }`,
+      path: `/pages/invite/index?${ qs.stringify({
+        // 发布者的名称
+        nickName,
+        // 发布者的头像
+        avatarUrl,
+        groupId: currentTeamId,
+        // 当前小组信息
+        ...currentTeam
+      }) }`
+    }
+  }
+
   handleSubmit = async () => {
     const {
       user: {
@@ -106,6 +191,10 @@ export default class Page extends Component {
 
     if (!taskCentent) {
       error.push('请输入任务内容')
+    }
+
+    if (!members.length) {
+      error.push('至少选择一个成员')
     }
 
     if (!endTime)  {
@@ -166,10 +255,52 @@ export default class Page extends Component {
     }
   }
 
+  handleShowSwitch = () => {
+    this.setState({
+      visibleSwitch: true
+    })
+  }
+
+  handleHideSwitch = () => {
+    this.setState({
+      visibleSwitch: false
+    })
+  }
+
+  handleSwitchTeam = async v => {
+    const {
+      currentTeamId
+    } = this.state
+
+    if (currentTeamId === v) {
+      this.setState({
+        visibleSwitch: false
+      })
+
+      return
+    }
+
+    showLoading({ title: '切换小组中' })
+
+    const [err, res] = await this.props.changeCurrentTeam(v)
+
+    hideLoading()
+
+    this.setState({
+      visibleSwitch: false
+    })
+  }
+
+  handleExtraClick = () => {
+    navigateTo({
+      url: `/pages/account/my_team/team_detail/index?id=${ this.props.user.currentTeamId }`
+    })
+  }
+
   render () {
     const {
       visibleAdd,
-
+      visibleSwitch,
 
       // form
       endTime,
@@ -179,24 +310,41 @@ export default class Page extends Component {
 
     const {
       user: {
+        id,
         currentTeamId,
       },
       team: {
-        data
+        data,
+        get_data_loading,
+        get_data_msg
       }
     } = this.props
 
     const currentTeam = data[currentTeamId]
 
+    if (get_data_loading) {
+      return <View>加载中</View>
+    }
+
+    if (get_data_msg) {
+      return (
+        <View>{ get_data_msg }</View>
+      )
+    }
+
     if (!currentTeam) {
       return null
     }
+
+    // 是否是小组创建者
+    const isTeamCreator = currentTeam.creator === id
 
     return (
       <Layout>
         <Panel
           title = { currentTeam.groupName }
           extra = { `${ currentTeam.memberCount }位成员` }
+          onExtraClick = { this.handleExtraClick }
 
           finishCount = { currentTeam.finishCount }
           ingCount = { currentTeam.ingCount }
@@ -204,8 +352,13 @@ export default class Page extends Component {
 
           dark
           visibleSwitch = { Object.keys(data).length > 1 }
+          onSwitch = { this.handleShowSwitch }
         >
-          <View className = 'invite-btn' />
+          {
+            isTeamCreator ?
+              <Btn className = 'invite-btn' openType = 'share'>邀请</Btn> :
+              null
+          }
         </Panel>
 
         <Layout padding = { [100, 32, 64] }>
@@ -214,77 +367,88 @@ export default class Page extends Component {
           </Sort>
 
           {
-            currentTeam.task.map((v, i) => (
-              <Card
-                title = { v.taskCentent }
-                project = { v.userGroup.groupName }
+            currentTeam.task.length ?
+              currentTeam.task.map((v, i) => (
+                <Card
+                  title = { v.taskCentent }
+                  project = { v.userGroup.groupName }
 
-                status = { v.status }
+                  status = { v.status }
 
-                finishCountDays = { v.finishCountDays }
-                postponeCountDays = { v.postponeCountDays }
-                surplusCountDays = { v.surplusCountDays }
+                  finishCountDays = { v.finishCountDays }
+                  postponeCountDays = { v.postponeCountDays }
+                  surplusCountDays = { v.surplusCountDays }
 
-                to = { `/pages/task_detail/index?id=${ v.id }` }
+                  to = { `/pages/task_detail/index?id=${ v.id }` }
 
-                key = { i }
-              />
-            ))
+                  key = { i }
+                />
+              )) :
+              <Empty />
           }
         </Layout>
 
-        <View className = { cs('modal-mask', { 'modal-mask-visible': visibleAdd }) } onClick = { this.handleHideAdd } />
-        <View className = { cs('modal-dialog', { 'modal-dialog-visible': visibleAdd }) }>
-          <View className = 'modal-dialog-close' onClick = { this.handleHideAdd } />
+        <van-popup
+          show = { visibleAdd }
+          onclose = { this.handleHideAdd }
+          position = 'bottom'
+          duration = { 200 }
+        >
+          <View className = 'modal-dialog'>
+            <View className = 'modal-dialog-close' onClick = { this.handleHideAdd } />
 
-          <FormControl
-            label = '需要做什么'
-            type = 'textarea'
-            placeholder = '150字以内'
-            maxlength = { 150 }
+            <FormControl
+              label = '需要做什么'
+              type = 'textarea'
+              placeholder = '150字以内'
+              maxlength = { 150 }
 
-            value = { taskCentent }
-            onChange = { this.handleChange.bind(this, 'taskCentent') }
-          />
+              value = { taskCentent }
+              onChange = { this.handleChange.bind(this, 'taskCentent') }
+            />
 
-          <FormControl label = '参与者'>
-            {
-              currentTeam.get_member_data_loading ?
-                <View>加载中</View> :
-                <View className = 'member-wrap'>
-                  <View className = { cs('member-checkbox', 'member-checkbox-checked') }>
-                    { currentTeam.creatorName }
+            <FormControl label = '参与者'>
+              {
+                currentTeam.get_member_data_loading ?
+                  <View>加载中</View> :
+                  <View className = 'member-wrap'>
+                    {
+                      currentTeam.member.map((v, i) => (
+                        <View
+                          className = {
+                            cs('member-checkbox', {
+                              ['member-checkbox-checked']: members.includes(v.id)
+                            })
+                          }
+                          key = { i }
+                          onClick = { this.handleSelectMember.bind(this, v, i) }
+                        >
+                          { v.memberName ? v.memberName : v.nickName }
+                        </View>
+                      ))
+                    }
                   </View>
-                  {
-                    // 过滤到创建者的id
-                    // 因为创建者必须包含创建者
-                    currentTeam.member.filter(v => v.id !== currentTeam.creator).map((v, i) => (
-                      <View
-                        className = {
-                          cs('member-checkbox', {
-                            ['member-checkbox-checked']: members.includes(v.id)
-                          })
-                        }
-                        key = { i }
-                        onClick = { this.handleSelectMember.bind(this, v, i) }
-                      >
-                        { v.nickName }
-                      </View>
-                    ))
-                  }
-                </View>
-            }
-          </FormControl>
+              }
+            </FormControl>
 
-          <DatePicker
-            label = '任务截止日期'
+            <DatePicker
+              label = '任务截止日期'
 
-            value = { endTime }
-            onChange = { this.handleChange.bind(this, 'endTime') }
-          />
+              value = { endTime }
+              onChange = { this.handleChange.bind(this, 'endTime') }
+            />
 
-          <Btn onClick = { this.handleSubmit }>完成</Btn>
-        </View>
+            <Btn onClick = { this.handleSubmit }>完成</Btn>
+          </View>
+        </van-popup>
+
+        <SwitchTeamModal
+          visible = { visibleSwitch }
+          value = { currentTeamId }
+          data = { Object.keys(data).map(k => data[k]) }
+          onOk = { this.handleSwitchTeam }
+          onClose = { this.handleHideSwitch }
+        />
       </Layout>
     )
   }

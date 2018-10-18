@@ -143,37 +143,6 @@ export default class Page extends Component {
       }
     } = this.props
 
-    let renderCheck = null
-
-    if (loading) {
-      renderCheck = <View>加载中</View>
-    } else if (msg) {
-      renderCheck = <View>类型获取失败</View>
-    } else if (!data.length) {
-      renderCheck = <View>没有数据</View>
-    } else {
-      renderCheck = (
-        <View className = 'type-wrap'>
-          {
-            data.map((v, i) => (
-              <View
-                className = {
-                  cs('type-checkbox', {
-                    [`type-checkbox-${ v.dicVal }`]: v.dicVal,
-                    ['type-checkbox-checked']: type.includes(v.dicVal)
-                  })
-                }
-                key = { i }
-                onClick = { this.handleSelectType.bind(this, v, i) }
-              >
-                { v.dicName }
-              </View>
-            ))
-          }
-        </View>
-      )
-    }
-
     return (
       <Layout padding = { [0, 60, 60] }>
         <Layout padding = { [0, 0, 60] }>
@@ -194,7 +163,24 @@ export default class Page extends Component {
           <View className = 'form-type'>
             <View className = 'form-type-title'>选定一个小组类型</View>
             <View className = 'form-type-content'>
-              { renderCheck }
+              <View className = 'type-wrap'>
+                {
+                  data.map((v, i) => (
+                    <View
+                      className = {
+                        cs('type-checkbox', {
+                          [`type-checkbox-${ v.dicVal }`]: v.dicVal,
+                          ['type-checkbox-checked']: type.includes(v.dicVal)
+                        })
+                      }
+                      key = { i }
+                      onClick = { this.handleSelectType.bind(this, v, i) }
+                    >
+                      { v.dicName }
+                    </View>
+                  ))
+                }
+              </View>
             </View>
           </View>
         </Layout>

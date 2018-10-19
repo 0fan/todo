@@ -108,7 +108,6 @@ export default class Page extends Component {
   }
 
   handleChange = (type, e) => {
-    console.log(e.target.value)
     this.setState({
       [type]: e.target.value
     })

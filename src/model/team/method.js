@@ -24,7 +24,8 @@ export function getTeam (
   {
     isRefresh,
     ignoreCache,
-    teamId
+    teamId,
+    r
   } = {}
 ) {
   return async (dispatch, getState) => {
@@ -149,12 +150,15 @@ export function getTeam (
 
     } else {
 
-      // 没有小组跳转到创建小组页面
-      reLaunch({
-        url: '/pages/create_team/index?r=/pages/my_task/index'
-      })
+      if (r !== false) {
+        // 没有小组跳转到创建小组页面
+        reLaunch({
+          url: '/pages/create_team/index'
+        })
 
-      showToast({ title: '没有小组呀' })
+        showToast({ title: '没有小组呀' })
+      }
+
 
     }
 

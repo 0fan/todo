@@ -88,7 +88,7 @@ export default class App extends Component {
           disabled = { disabled }
         >
           <FormControl label = '任务截止日期' type = 'label' disabled = { disabled }>
-            { date ? date : '请选择任务截止日期' }
+            { date ? date : '截止日期' }
           </FormControl>
         </Picker>
         <Picker
@@ -100,7 +100,7 @@ export default class App extends Component {
           disabled = { disabled }
         >
           <FormControl label = '任务截止时间' type = 'label' disabled = { disabled }>
-            { time ? time : '请选择任务截止时间' }
+            { time ? time : '截止时间' }
           </FormControl>
         </Picker>
       </View>

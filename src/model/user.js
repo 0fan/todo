@@ -151,7 +151,7 @@ export function login (payload = {}, r) {
     // 获取小组列表
     //  -> 小组列表数据成功后会切换第一个小组为当前小组
     //  -> 切换小组后会获取当前小组的成员和任务　
-    dispatch(getTeam({ userId: id }))
+    dispatch(getTeam({ userId: id }, { r }))
 
     // 如果是新用户就必须要创建小组才能进行其他操作
     //

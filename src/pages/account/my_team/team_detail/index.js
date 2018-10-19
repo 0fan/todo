@@ -101,38 +101,38 @@ export default class Page extends Component {
    * @return {void}
    */
   handleMemberClick = async (v, i, e) => {
-    const {
-      user: {
-        id: userId
-      },
-      team: {
-        data
-      },
-    } = this.props
+    // const {
+    //   user: {
+    //     id: userId
+    //   },
+    //   team: {
+    //     data
+    //   },
+    // } = this.props
 
-    const {
-      // 小组id
-      id
-    } = this.state
+    // const {
+    //   // 小组id
+    //   id
+    // } = this.state
 
-    const teamData = data[id]
+    // const teamData = data[id]
 
-    if (!teamData) {
-      return null
-    }
+    // if (!teamData) {
+    //   return null
+    // }
 
-    if (
-      String(userId) === String(teamData.creator) &&
-      v.id !== userId
-    ) {
-      const sure = await showModal({ content: `确认删除该[${ v.nickName }]吗?` })
+    // if (
+    //   String(userId) === String(teamData.creator) &&
+    //   v.id !== userId
+    // ) {
+    //   const sure = await showModal({ content: `确认删除该[${ v.nickName }]吗?` })
 
-      if (!sure) {
-        return
-      }
+    //   if (!sure) {
+    //     return
+    //   }
 
 
-    }
+    // }
   }
 
   // 解散小组

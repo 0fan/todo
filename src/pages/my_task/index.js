@@ -17,6 +17,8 @@ import { showToast, showModal, showLoading, hideLoading } from '../../util/wx'
 import { getMyTask } from '../../model/task'
 import { removeTeamTask } from '../../model/team/method'
 
+import { pipeTask } from '../../util/pipeTask'
+
 import './index.less'
 
 @connect(state => ({
@@ -33,6 +35,17 @@ export default class Page extends Component {
     navigationBarTextStyle: 'white',
     backgroundColor: '#257AFF',
     enablePullDownRefresh: true,
+  }
+
+  state = {
+    // 过滤类型
+    filterType: {
+      finish: 1,
+      ing: 1,
+      postpone: 1,
+    },
+    // 排序方式
+    sortType: 0
   }
 
   // 下拉刷新
@@ -106,6 +119,39 @@ export default class Page extends Component {
     })
   }
 
+  handleSort = () => {
+    this.setState(prevState => ({
+      sortType: (prevState.sortType + 1) % 3
+    }))
+  }
+
+  handleFinishCountClick = () => {
+    this.setState(prevState => ({
+      filterType: {
+        ...prevState.filterType,
+       finish: prevState.filterType.finish === 0 ? 1 : 0
+      }
+    }))
+  }
+
+  handleIngCountClick = () => {
+    this.setState(prevState => ({
+      filterType: {
+        ...prevState.filterType,
+       ing: prevState.filterType.ing === 0 ? 1 : 0
+      }
+    }))
+  }
+
+  handlePostponeCountClick = () => {
+    this.setState(prevState => ({
+      filterType: {
+        ...prevState.filterType,
+       postpone: prevState.filterType.postpone === 0 ? 1 : 0
+      }
+    }))
+  }
+
   render () {
     const {
       user: {
@@ -124,45 +170,12 @@ export default class Page extends Component {
       }
     } = this.props
 
-    const renderChildren = null
+    const {
+      filterType,
+      sortType
+    } = this.state
 
-    if (get_task_loading || !get_task_init) {
-      renderChildren = <Loading />
-    } else if (get_task_msg) {
-      renderChildren = <Fail><Text className = 'a' onClick = { this.getMyTask }>重试</Text></Fail>
-    } else if (!data.length) {
-      renderChildren = (
-        <View>
-          <Sort />
-          <Empty />
-        </View>
-      )
-    } else {
-      renderChildren = (
-        <View>
-          <Sort />
-          {
-            data.map((v, i) => (
-              <Card
-                title = { v.taskCentent }
-                project = { v.userGroup.groupName }
-
-                status = { v.status }
-
-                finishCountDays = { v.finishCountDays }
-                postponeCountDays = { v.postponeCountDays }
-                surplusCountDays = { v.surplusCountDays }
-
-                to = { `/pages/task_detail/index?id=${ v.id }` }
-                onLongPress = { this.handleLongPress.bind(this, v, i) }
-
-                key = { i }
-              />
-            ))
-          }
-        </View>
-      )
-    }
+    const _data = pipeTask(data, filterType, sortType)
 
     return (
       <Layout>
@@ -171,15 +184,53 @@ export default class Page extends Component {
           extra = { `今天是 ${ moment().format('YYYY年M月D日') } 祝一切顺利 ！` }
           avatar = { avatarUrl }
 
+          filterType = { filterType }
+
           finishCount = { finishCount }
           ingCount = { ingCount }
           postponeCount = { postponeCount }
+
+          onFinishCountClick = { this.handleFinishCountClick }
+          onIngCountClick = { this.handleIngCountClick }
+          onPostponeCountClick = { this.handlePostponeCountClick }
 
           dark
         />
 
         <Layout padding = { [100, 32, 64] }>
-          { renderChildren }
+          {
+            get_task_loading || !get_task_init ?
+              <Loading /> :
+              get_task_msg ?
+                <Fail><Text className = 'a' onClick = { this.getMyTask }>重试</Text></Fail> :
+                !_data.length ?
+                  <View>
+                    <Sort type = { sortType } onClick = { this.handleSort } />
+                    <Empty />
+                  </View> :
+                  <View>
+                    <Sort type = { sortType } onClick = { this.handleSort } />
+                    {
+                      _data.map((v, i) => (
+                        <Card
+                          title = { v.taskCentent }
+                          project = { v.userGroup.groupName }
+
+                          status = { v.status }
+
+                          finishCountDays = { v.finishCountDays }
+                          postponeCountDays = { v.postponeCountDays }
+                          surplusCountDays = { v.surplusCountDays }
+
+                          to = { `/pages/task_detail/index?id=${ v.id }` }
+                          onLongPress = { this.handleLongPress.bind(this, v, i) }
+
+                          key = { i }
+                        />
+                      ))
+                    }
+                  </View>
+          }
         </Layout>
       </Layout>
     )

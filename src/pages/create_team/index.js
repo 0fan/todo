@@ -153,11 +153,21 @@ export default class Page extends Component {
           />
 
           <View className = 'form-group'>
-            <Input placeholder = '独一无二的小组名称' value = { groupName } onInput = { this.handleChange.bind(this, 'groupName') } />
+            <Input
+              placeholder = '独一无二的小组名称'
+              value = { groupName }
+              onInput = { this.handleChange.bind(this, 'groupName') }
+              maxLength = { 10 }
+            />
           </View>
 
           <View className = 'form-group'>
-            <Input placeholder = '成员如何该称呼你' value = { creatorName } onInput = { this.handleChange.bind(this, 'creatorName') } />
+            <Input
+              placeholder = '成员如何该称呼你'
+              value = { creatorName }
+              onInput = { this.handleChange.bind(this, 'creatorName') }
+              maxLength = { 8 }
+            />
           </View>
 
           <View className = 'form-type'>

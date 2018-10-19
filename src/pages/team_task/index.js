@@ -21,8 +21,10 @@ import Empty from '../../component/empty'
 import Loading from '../../component/loading'
 import Fail from '../../component/fail'
 
+import { pipeTask } from '../../util/pipeTask'
+
 import { changeCurrentTeam } from '../../model/user'
-import { getTeam, addTeamTask } from '../../model/team/method'
+import { getTeam, addTeamTask, removeTeamTask } from '../../model/team/method'
 
 import './index.less'
 
@@ -33,6 +35,7 @@ import './index.less'
   changeCurrentTeam: (...rest) => dispatch(changeCurrentTeam(...rest)),
   getTeam: (...rest) => dispatch(getTeam(...rest)),
   addTeamTask: (...rest) => dispatch(addTeamTask(...rest)),
+  removeTeamTask: (...rest) => dispatch(removeTeamTask(...rest)),
 }))
 export default class Page extends Component {
   config = {
@@ -55,6 +58,15 @@ export default class Page extends Component {
     taskCentent: '',
     members: [],
     endTime: moment().add(3, 'd').format('YYYY-MM-DD HH:mm'),
+
+    // 过滤类型
+    filterType: {
+      finish: 1,
+      ing: 1,
+      postpone: 1,
+    },
+    // 排序方式
+    sortType: 0
   }
 
   // 下拉刷新
@@ -316,6 +328,73 @@ export default class Page extends Component {
     })
   }
 
+  handleSort = () => {
+    this.setState(prevState => ({
+      sortType: (prevState.sortType + 1) % 3
+    }))
+  }
+
+  handleFinishCountClick = () => {
+    this.setState(prevState => ({
+      filterType: {
+        ...prevState.filterType,
+       finish: prevState.filterType.finish === 0 ? 1 : 0
+      }
+    }))
+  }
+
+  handleIngCountClick = () => {
+    this.setState(prevState => ({
+      filterType: {
+        ...prevState.filterType,
+       ing: prevState.filterType.ing === 0 ? 1 : 0
+      }
+    }))
+  }
+
+  handlePostponeCountClick = () => {
+    this.setState(prevState => ({
+      filterType: {
+        ...prevState.filterType,
+       postpone: prevState.filterType.postpone === 0 ? 1 : 0
+      }
+    }))
+  }
+
+  // 长按删除
+  handleLongPress = async (v, i, e) => {
+    const {
+      removeTeamTask
+    } = this.props
+
+    const sure = await showModal({ content: '确认删除此任务吗?' })
+
+    if (!sure) {
+      return
+    }
+
+    showLoading({
+      title: '删除中',
+    })
+
+    const [err, res] = await removeTeamTask({
+      taskId: v.id
+    })
+
+    if (err) {
+      showToast({
+        title: err
+      })
+
+      return
+    }
+
+    showToast({
+      title: '删除成功',
+      icon: 'success'
+    })
+  }
+
   render () {
     const {
       visibleAdd,
@@ -324,7 +403,10 @@ export default class Page extends Component {
       // form
       endTime,
       members,
-      taskCentent
+      taskCentent,
+
+      filterType,
+      sortType
     } = this.state
 
     const {
@@ -340,66 +422,17 @@ export default class Page extends Component {
       }
     } = this.props
 
-    let currentTeam = data[currentTeamId]
+    const currentTeam = data[currentTeamId]
 
-    const renderChildren = null
-
-    if (get_data_loading) {
-      return <Loading />
-    }
-
-    // return 竟然不能控制代码流程...
-    // 这里临时补锅
     if (!currentTeam) {
-      currentTeam = {
-        member: [],
-        task: []
-      }
+      return null
     }
 
-    if (get_data_msg) {
-      renderChildren = <Fail><Text className = 'a' onClick = { this.getTeam }>重试</Text></Fail>
-    } else if (!currentTeam.task.length) {
-      renderChildren = (
-        <Layout padding = { [100, 32, 64] }>
-          <Sort>
-            <View className = 'release-btn' onClick = { this.handleShowAdd } />
-          </Sort>
-          <Empty />
-        </Layout>
-      )
-    } else {
-      renderChildren = (
-        <Layout padding = { [100, 32, 64] }>
-          <Sort>
-            <View className = 'release-btn' onClick = { this.handleShowAdd } />
-          </Sort>
-          {
-            currentTeam.task.map((v, i) => (
-              <Card
-                title = { v.taskCentent }
-                project = { v.userGroup.groupName }
-
-                status = { v.status }
-
-                finishCountDays = { v.finishCountDays }
-                postponeCountDays = { v.postponeCountDays }
-                surplusCountDays = { v.surplusCountDays }
-
-                to = { `/pages/task_detail/index?id=${ v.id }` }
-
-                key = { i }
-              />
-            ))
-          }
-        </Layout>
-      )
-    }
+    const _data = pipeTask(currentTeam.task, filterType, sortType)
 
     // 是否是小组创建者
     const isTeamCreator = currentTeam.creator === id
     const listTeam = Object.keys(data).map(k => data[k])
-    // console.log(listTeam)
 
     return (
       <Layout>
@@ -408,6 +441,8 @@ export default class Page extends Component {
           extra = { `${ currentTeam.memberCount }位成员` }
           onExtraClick = { this.handleExtraClick }
 
+          filterType = { filterType }
+
           finishCount = { currentTeam.finishCount }
           ingCount = { currentTeam.ingCount }
           postponeCount = { currentTeam.postponeCount }
@@ -415,6 +450,10 @@ export default class Page extends Component {
           dark
           visibleSwitch = { listTeam.length > 1 }
           onSwitch = { this.handleShowSwitch }
+
+          onFinishCountClick = { this.handleFinishCountClick }
+          onIngCountClick = { this.handleIngCountClick }
+          onPostponeCountClick = { this.handlePostponeCountClick }
         >
           {
             isTeamCreator ?
@@ -423,7 +462,47 @@ export default class Page extends Component {
           }
         </Panel>
 
-        { renderChildren }
+        {
+          get_data_loading ?
+            <Loading /> :
+            get_data_msg ?
+              <Fail><Text className = 'a' onClick = { this.getTeam }>重试</Text></Fail> :
+              !_data.length ?
+                <Layout padding = { [100, 32, 64] }>
+                  <Sort type = { sortType } onClick = { this.handleSort }>
+                    <Btn className = 'release-btn' onClick = { this.handleShowAdd }>
+                      发布任务
+                    </Btn>
+                  </Sort>
+                  <Empty />
+                </Layout> :
+                <Layout padding = { [100, 32, 64] }>
+                  <Sort type = { sortType } onClick = { this.handleSort }>
+                    <Btn className = 'release-btn' onClick = { this.handleShowAdd }>
+                      发布任务
+                    </Btn>
+                  </Sort>
+                  {
+                    _data.map((v, i) => (
+                      <Card
+                        title = { v.taskCentent }
+                        project = { v.userGroup.groupName }
+
+                        status = { v.status }
+
+                        finishCountDays = { v.finishCountDays }
+                        postponeCountDays = { v.postponeCountDays }
+                        surplusCountDays = { v.surplusCountDays }
+
+                        to = { `/pages/task_detail/index?id=${ v.id }` }
+                        onLongPress = { this.handleLongPress.bind(this, v, i) }
+
+                        key = { i }
+                      />
+                    ))
+                  }
+                </Layout>
+        }
 
         <van-popup
           show = { visibleAdd }

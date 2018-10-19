@@ -197,6 +197,7 @@ export default class Page extends Component {
                 placeholder ='请输入小组昵称'
                 value = { value }
                 onInput = { this.handleChange.bind(this, 'value') }
+                maxLength = { 10 }
               />
             </View>
             <View className = 'form-group-after' onClick = { this.handleShowSwitch }>{ currentTeam.groupName }</View>

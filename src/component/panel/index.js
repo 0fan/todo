@@ -17,6 +17,18 @@ export default class App extends Component {
     this.props.onExtraClick && this.props.onExtraClick(e)
   }
 
+  handleFinishCountClick = (e) => {
+    this.props.onFinishCountClick && this.props.onFinishCountClick(e)
+  }
+
+  handleIngCountClick = (e) => {
+    this.props.onIngCountClick && this.props.onIngCountClick(e)
+  }
+
+  handlePostponeCountClick = (e) => {
+    this.props.onPostponeCountClick && this.props.onPostponeCountClick(e)
+  }
+
   render () {
     const {
       title,
@@ -28,6 +40,8 @@ export default class App extends Component {
       ingCount,
       // 延期任务数
       postponeCount,
+
+      filterType,
 
       dark,
 
@@ -117,15 +131,36 @@ export default class App extends Component {
         {
           hasFooter ?
             <View className = 'panel-footer'>
-              <View className = 'panel-card panel-card-progress'>
+              <View
+                className = {
+                  cs('panel-card', 'panel-card-progress', {
+                    ['panel-card-disabled']: filterType && filterType.ing === 0
+                  })
+                }
+                onClick = { this.handleIngCountClick }
+              >
                 <View className = 'panel-card-value'>{ ingCount }</View>
                 <View className = 'panel-card-label'>进行中</View>
               </View>
-              <View className = 'panel-card panel-card-fail'>
+              <View
+                className = {
+                  cs('panel-card', 'panel-card-fail', {
+                    ['panel-card-disabled']: filterType && filterType.postpone === 0
+                  })
+                }
+                onClick = { this.handlePostponeCountClick }
+              >
                 <View className = 'panel-card-value'>{ postponeCount }</View>
                 <View className = 'panel-card-label'>延期中</View>
               </View>
-              <View className = 'panel-card panel-card-success'>
+              <View
+                className = {
+                  cs('panel-card', 'panel-card-success', {
+                    ['panel-card-disabled']: filterType && filterType.finish === 0
+                  })
+                }
+                onClick = { this.handleFinishCountClick }
+              >
                 <View className = 'panel-card-value'>{ finishCount }</View>
                 <View className = 'panel-card-label'>已完成</View>
               </View>

@@ -4,6 +4,7 @@ import { View, Text, Image } from '@tarojs/components'
 
 import Layout from '../../component/layout'
 import Btn from '../../component/button'
+import Loading from '../../component/loading'
 
 import { getSetting, getUserInfo, showToast } from '../../util/wx'
 
@@ -84,9 +85,7 @@ export default class Page extends Component {
 
     if (login_loading) {
       renderBottom = (
-        <View className = 'title'>
-          <Text>登录中</Text>
-        </View>
+        <Loading title = '登录中' />
       )
     } else if (login_msg) {
       renderBottom = (

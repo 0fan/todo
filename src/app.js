@@ -19,7 +19,7 @@ const store = createStore(reducer, applyMiddleware(
   // createLogger()
 ))
 
-login(store)
+// login(store)
 
 @connect(state => ({
   user: state.user
@@ -34,7 +34,7 @@ class App extends Component {
       navigationBarTextStyle: 'black'
     },
     pages: [
-      // 'pages/auth/index',
+      'pages/auth/index',
       'pages/my_task/index',
       'pages/account/index',
       'pages/team_task/index',
@@ -47,7 +47,7 @@ class App extends Component {
       'pages/create_team/index',
       'pages/invite/index',
 
-      'pages/auth/index',
+      // 'pages/auth/index',
     ],
     tabBar: {
       color: '#A9A9A9',
@@ -76,11 +76,11 @@ class App extends Component {
 
   // 对应 app 的 onLaunch
   componentWillMount () {
-    if (!this.props.user.isLogin) {
-      reLaunch({
-        url: '/pages/auth/index'
-      })
-    }
+    // if (!this.props.user.isLogin) {
+    //   reLaunch({
+    //     url: '/pages/auth/index'
+    //   })
+    // }
   }
 
   componentDidMount () {}

@@ -25,7 +25,6 @@ const initState = {
    *        rawAddTime  {Number}       添加时间 时间戳
    *
    *        status      {String}       任务状态 0:延期 1:完成 2:进行中
-   *        status      {String}       任务状态 0:延期 1:完成 2:进行中
    *
    *        userinfos   {Object Array} 参数者信息
    *          id            {Number} 参与者id

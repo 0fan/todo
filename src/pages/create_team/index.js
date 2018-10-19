@@ -144,8 +144,8 @@ export default class Page extends Component {
     } = this.props
 
     return (
-      <Layout padding = { [0, 60, 60] }>
-        <Layout padding = { [0, 0, 60] }>
+      <View className = 'page'>
+        <View className = 'page-content'>
           <Panel
             title = { `你好 ${ nickName }\n请完善以下内容` }
             avatar = { avatarUrl }
@@ -193,10 +193,10 @@ export default class Page extends Component {
               </View>
             </View>
           </View>
-        </Layout>
+        </View>
 
-        <Btn onClick = { this.handleSubmit }>完成</Btn>
-      </Layout>
+        <Btn onClick = { this.handleSubmit }>立即创建</Btn>
+      </View>
     )
   }
 }

@@ -15,7 +15,7 @@ import Sort from '../../component/sort'
 import Card from '../../component/card/taskCard'
 import Btn from '../../component/button'
 import FormControl from '../../component/form/formControl'
-import DatePicker from '../../component/datePicker'
+import DatePicker from '../../component/datePicker2'
 import SwitchTeamModal from '../../component/switchTeamModal'
 import Empty from '../../component/empty'
 import Loading from '../../component/loading'
@@ -108,6 +108,7 @@ export default class Page extends Component {
   }
 
   handleChange = (type, e) => {
+    console.log(e.target.value)
     this.setState({
       [type]: e.target.value
     })
@@ -224,10 +225,6 @@ export default class Page extends Component {
       error.push('请输入任务内容')
     }
 
-    if (!members.length) {
-      error.push('至少选择一个成员')
-    }
-
     if (!endTime)  {
       error.push('请选择任务时间')
     }
@@ -251,7 +248,8 @@ export default class Page extends Component {
 
       taskCentent,
       endTime,
-      members: [currentTeam.creator].concat(members).join(',')
+      // 比如包含任务创建者
+      members: [id].concat(members).join(',')
     })
 
     hideLoading()
@@ -430,6 +428,10 @@ export default class Page extends Component {
 
     const _data = pipeTask(currentTeam.task, filterType, sortType)
 
+    // 小组创建者
+    const teamCreator = currentTeam.member.find(v => v.id === currentTeam.creator)
+    // 任务创建者
+    const taskCreator = currentTeam.member.find(v => v.id === id)
     // 是否是小组创建者
     const isTeamCreator = currentTeam.creator === id
     const listTeam = Object.keys(data).map(k => data[k])
@@ -526,24 +528,36 @@ export default class Page extends Component {
             <FormControl label = '参与者'>
               {
                 currentTeam.get_member_data_loading ?
-                  <View>加载中</View> :
-                  <View className = 'member-wrap'>
-                    {
-                      currentTeam.member.map((v, i) => (
-                        <View
-                          className = {
-                            cs('member-checkbox', {
-                              ['member-checkbox-checked']: members.includes(v.id)
-                            })
-                          }
-                          key = { i }
-                          onClick = { this.handleSelectMember.bind(this, v, i) }
-                        >
-                          { v.memberName ? v.memberName : v.nickName }
-                        </View>
-                      ))
-                    }
-                  </View>
+                  <Loading /> :
+                  currentTeam.get_member_data_msg ?
+                    <Fail title = { currentTeam.get_member_data_msg } /> :
+                    <View className = 'member-wrap'>
+                      <View
+                        className = {
+                          cs('member-checkbox', {
+                            ['member-checkbox-checked']: true
+                          })
+                        }
+                      >
+                        { taskCreator.memberName ? taskCreator.memberName : taskCreator.nickName }
+                      </View>
+                      {
+                        // 过滤掉任务创建者,任务创建者必须包含
+                        currentTeam.member.filter(v => v.id !== id).map((v, i) => (
+                          <View
+                            className = {
+                              cs('member-checkbox', {
+                                ['member-checkbox-checked']: members.includes(v.id)
+                              })
+                            }
+                            key = { i }
+                            onClick = { this.handleSelectMember.bind(this, v, i) }
+                          >
+                            { v.memberName ? v.memberName : v.nickName }
+                          </View>
+                        ))
+                      }
+                    </View>
               }
             </FormControl>
 

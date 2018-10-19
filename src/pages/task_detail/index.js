@@ -1,4 +1,4 @@
-import Taro, { Component, navigateBack } from '@tarojs/taro'
+import Taro, { Component, navigateBack, reLaunch } from '@tarojs/taro'
 import { connect } from '@tarojs/redux'
 import { View, Textarea, Input } from '@tarojs/components'
 
@@ -13,7 +13,8 @@ import Layout from '../../component/layout'
 import Panel from '../../component/panel'
 import Btn from '../../component/button'
 import FormControl from '../../component/form/formControl'
-import DatePicker from '../../component/datePicker'
+import DatePicker from '../../component/datePicker2'
+import Loading from '../../component/loading'
 
 import { editTeamTask, removeTeamTask, getTeamMember } from '../../model/team/method'
 
@@ -35,29 +36,33 @@ export default class Page extends Component {
     navigationBarTitleText: '任务详情',
   }
 
-  constructor (props) {
-    super(props)
+  state = {
+    isEdit: false,
 
-    this.state = {
-      isEdit: false,
+    // 当前小组
+    team: null,
+    task: null,
+    // 所有小组成员
+    member: [],
 
-      task: null,
-      // 所有小组成员
-      member: [],
-
-      taskCentent: '',
-      // 用户选择的小组成员
-      members: [],
-      endTime: ''
-    }
+    taskCentent: '',
+    // 用户选择的小组成员
+    members: [],
+    endTime: ''
   }
 
-  componentWillMount () {
+  async componentWillMount () {
     const {
-      id
+      id,
+      // taskId和groupId是从卡片进来的,如果是卡片进来的则接口获取数据
+      taskId,
+      groupId
     } = this.$router.params
 
     const {
+      user: {
+        isLogin
+      },
       task: {
         data
       },
@@ -66,11 +71,60 @@ export default class Page extends Component {
       }
     } = this.props
 
+    // 如果未登录重新登录
+    if (!isLogin) {
+      reLaunch({
+        url: '/pages/auth/index'
+      })
+
+      return
+    }
+
+    if (taskId) {
+      if (!groupId) {
+        await showToast({
+          title: '未传递groupId'
+        })
+
+        reLaunch({
+          url: '/pages/auth/index'
+        })
+
+        return
+      }
+
+      showLoading({
+        title: '初始化数据中',
+      })
+
+      const [err, res] = await Promise.all([
+        this.getTaskDetail(taskId),
+        this.getTeamMember(groupId)
+      ])
+
+      hideLoading()
+
+      if (err.some(v => v[0])) {
+        await showToast({
+          title: err.filter(v => v[0])[0]
+        })
+
+        reLaunch({
+          url: '/pages/auth/index'
+        })
+      }
+
+      return
+    }
+
     const task = data.find(v => String(v.id) === id)
 
-    // 如果个人任务列表没有这条数据则请求服务器
     if (!task) {
-      this.getTaskDetail(id)
+      await showToast({
+        title: '未找到任务信息'
+      })
+
+      navigateBack()
 
       return
     }
@@ -86,7 +140,7 @@ export default class Page extends Component {
 
     const team = teamData[userGroupId]
 
-    if (!team || !team.get_member_data_init) {
+    if (!team.get_member_data_init) {
       this.getTeamMember(userGroupId)
     }
 
@@ -100,6 +154,7 @@ export default class Page extends Component {
     }
 
     this.setState({
+      team,
       task,
       member: team.member,
 
@@ -113,22 +168,18 @@ export default class Page extends Component {
   // 个人任务过来,可能点击的任务不是当前小组,所以需要单独获取小组任务
   // 获取成功后还需要获取小组成员
   getTaskDetail = async (taskId) => {
-    showLoading({
-      title: '获取小组详情中',
-    })
+    // showLoading({
+    //   title: '获取小组详情中',
+    // })
 
     const [err, res] = await ajax(url.server + api.task.detail, {
       taskId
     })
 
-    hideLoading()
+    // hideLoading()
 
     if (err) {
-      showToast({
-        title: err
-      })
-
-      return
+      return [err]
     }
 
     const {
@@ -156,17 +207,27 @@ export default class Page extends Component {
       members: _members,
       endTime: _endTime
     })
+
+    return [null, res]
   }
 
   // 获取小组成员
-  getTeamMember = async (teamId) => {
-    const [err, res] = await this.props.getTeamMember({}, { teamId })
+  getTeamMember = async (groupId) => {
+    // const [err, res] = await ajax(url.server + api.member.list, { groupId })
+    const [err, res] = await this.props.getTeamMember({}, { teamId: groupId })
 
-    if (res) {
-      this.setState({
-        member: res.userinfos
-      })
+    if (err) {
+      return [err]
     }
+    const {
+      userinfos
+    } = res
+
+    this.setState({
+      member: userinfos
+    })
+
+    return [null, res]
   }
 
   handleSelectMember = (v, i, e) => {
@@ -369,7 +430,11 @@ export default class Page extends Component {
     const {
       isEdit,
 
+      // 当前任务所在的小组
+      team,
+      // 当前任务
       task,
+      // 当前任务所在的成员
       member,
 
       taskCentent,
@@ -378,27 +443,29 @@ export default class Page extends Component {
     } = this.state
 
     const {
-      team: {
-        data
-      },
       user: {
         id
       }
     } = this.props
 
+    if (
+      !member ||
+      !task
+    ) {
+      return <Loading />
+    }
+
+    // 小组创建者
+    const teamCreator = member.find(v => v.id === task.userGroup.creator)
+    // 任务创建者
+    const taskCreator = member.find(v => v.id === task.creator)
     // 是否是小组创建者
     const isTeamCreator = task.userGroup.creator === id
     // 是否是任务创建者
     const isTaskCreator = task.creator === id
 
-    if (!task) {
-      return null
-    }
-
     let renderAction = null
 
-
-    // 任务如果已完成不可编辑
     if (!isEdit) {
       renderAction = (
         <View className = 'action'>
@@ -451,11 +518,18 @@ export default class Page extends Component {
 
           <FormControl label = '参与者'>
             <View className = 'member-wrap'>
+              <View
+                className = {
+                  cs('member-checkbox', {
+                    ['member-checkbox-checked']: true
+                  })
+                }
+              >
+                { taskCreator.memberName ? taskCreator.memberName : taskCreator.nickName }
+              </View>
               {
-                // 过滤到创建者的id
-                // 因为必须包含创建者
-                (isEdit && isTeamCreator) || (isEdit && isTaskCreator) ?
-                  member.map((v, i) => (
+                isEdit && isTaskCreator ?
+                  member.filter(v => v.id !== task.creator).map((v, i) => (
                     <View
                       className = {
                         cs('member-checkbox', {
@@ -468,7 +542,7 @@ export default class Page extends Component {
                       { v.memberName }
                     </View>
                   )) :
-                  member.filter(v => members.includes(v.id)).map((v, i) => (
+                  member.filter(v => members.includes(v.id) && v.id !== task.creator).map((v, i) => (
                     <View
                       className = {
                         cs('member-checkbox', {
@@ -494,7 +568,7 @@ export default class Page extends Component {
         </View>
 
         {
-          task.status == '1' ?
+          task.status == '1' && isTaskCreator ?
             <View className = 'action'>
               <Btn className = 'delete-btn' type = 'default' plain onClick = { this.handleDelete }>删除任务</Btn>
             </View> :

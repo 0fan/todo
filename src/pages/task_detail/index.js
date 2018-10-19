@@ -140,10 +140,6 @@ export default class Page extends Component {
 
     const team = teamData[userGroupId]
 
-    if (!team.get_member_data_init) {
-      this.getTeamMember(userGroupId)
-    }
-
     const _endTime = moment(Number(endTime)).format('YYYY-MM-DD HH:mm')
 
     // 保存原数据提交的时候做比较,如果一样则不提交
@@ -162,6 +158,10 @@ export default class Page extends Component {
       members,
       endTime: _endTime,
     })
+
+    if (!team.get_member_data_init) {
+      this.getTeamMember(userGroupId, true)
+    }
   }
 
   // 获取小组详情
@@ -212,13 +212,24 @@ export default class Page extends Component {
   }
 
   // 获取小组成员
-  getTeamMember = async (groupId) => {
+  getTeamMember = async (groupId, withLoading) => {
+    withLoading && showLoading({
+      title: '获取小组成员中'
+    })
+
     // const [err, res] = await ajax(url.server + api.member.list, { groupId })
-    const [err, res] = await this.props.getTeamMember({}, { teamId: groupId })
+    const [err, res] = await this.props.getTeamMember({}, { teamId: groupId, ignoreCache: true })
+
+    withLoading && hideLoading()
 
     if (err) {
+      withLoading && showToast({
+        title: err
+      })
+
       return [err]
     }
+
     const {
       userinfos
     } = res

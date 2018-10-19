@@ -140,7 +140,7 @@ export default class Page extends Component {
     } = res
 
     const _endTime = moment(Number(endTime)).format('YYYY-MM-DD HH:mm')
-    const _members = _.isString(members) ? members.split(',') : [creator]
+    const _members = _.isString(members) ? members.split(',') : []
 
     // 保存原数据提交的时候做比较,如果一样则不提交
     this.originData = {

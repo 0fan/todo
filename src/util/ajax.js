@@ -4,6 +4,8 @@ import { showModal } from '../util/wx'
 
 import qs from 'qs'
 
+import { _url, api } from '../config/api'
+
 const header = {
   'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
 }
@@ -49,15 +51,18 @@ export default (
       if (code === -2) {
         store.clear()
 
-        const sure = await showModal({
-          showCancel: false,
-          content: '登录失效或未登录,将重新登录',
-          confirmText: '确定',
-        })
+        // 过滤掉formid接口
+        if (url !== _url.server + api.saveFormId) {
+          const sure = await showModal({
+            showCancel: false,
+            content: '登录失效或未登录,将重新登录',
+            confirmText: '确定',
+          })
 
-        reLaunch({
-          url: '/pages/auth/index'
-        })
+          reLaunch({
+            url: '/pages/auth/index'
+          })
+        }
 
         return resolve([message || '请求失败'])
       }

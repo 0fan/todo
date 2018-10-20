@@ -6,10 +6,12 @@ import Layout from '../../../../component/layout'
 import Panel from '../../../../component/panel'
 import Btn from '../../../../component/button'
 import Card from '../../../../component/card/memberCard'
+import Loading from '../../../../component/loading'
+import Fail from '../../../../component/fail'
 
 import { showModal, showLoading, hideLoading, showToast } from '../../../../util/wx'
 
-import { addTeam, getTeamMember, removeTeam } from '../../../../model/team/method'
+import { addTeam, getTeamMember, removeTeamMember, removeTeam } from '../../../../model/team/method'
 
 import './index.less'
 
@@ -19,6 +21,7 @@ import './index.less'
 }), dispatch => ({
   removeTeam: (...rest) => dispatch(removeTeam(...rest)),
   getTeamMember: (...rest) => dispatch(getTeamMember(...rest)),
+  removeTeamMember: (...rest) => dispatch(removeTeamMember(...rest)),
 }))
 export default class Page extends Component {
   config = {
@@ -28,6 +31,7 @@ export default class Page extends Component {
   }
 
   state = {
+    // 小组id
     id: '',
     groupName: '',
     member: []
@@ -53,7 +57,7 @@ export default class Page extends Component {
     }
 
     this.setState({
-      id,
+      id: Number(id),
       member: data[id].member,
       groupName: data[id].groupName,
     })
@@ -75,9 +79,11 @@ export default class Page extends Component {
     hideLoading()
 
     if (err) {
-      showToast({
+      await showToast({
         title: err
       })
+
+      navigateBack()
 
       return
     }
@@ -101,38 +107,68 @@ export default class Page extends Component {
    * @return {void}
    */
   handleMemberClick = async (v, i, e) => {
-    // const {
-    //   user: {
-    //     id: userId
-    //   },
-    //   team: {
-    //     data
-    //   },
-    // } = this.props
+    const {
+      user: {
+        id: userId
+      },
+      team: {
+        data
+      },
+    } = this.props
 
-    // const {
-    //   // 小组id
-    //   id
-    // } = this.state
+    const {
+      // 小组id
+      id
+    } = this.state
 
-    // const teamData = data[id]
+    const teamData = data[id]
 
-    // if (!teamData) {
-    //   return null
-    // }
+    if (!teamData) {
+      return
+    }
 
-    // if (
-    //   String(userId) === String(teamData.creator) &&
-    //   v.id !== userId
-    // ) {
-    //   const sure = await showModal({ content: `确认删除该[${ v.nickName }]吗?` })
+    // 只能是小组的创建者才能删除成员
+    if (teamData.creator !== userId) {
+      return
+    }
 
-    //   if (!sure) {
-    //     return
-    //   }
+    // 自己不能删除自己
+    if (v.id === userId) {
+      return
+    }
 
+    const sure = await showModal({ content: `确认删除该[${ v.nickName }]吗?` })
 
-    // }
+    if (!sure) {
+      return
+    }
+
+    showLoading({
+      title: `删除[${ v.nickName }]中...`,
+    })
+
+    const [err, res] = await this.props.removeTeamMember({
+      excType: 1,
+      groupId: id,
+      userId: v.id
+    }, {
+      id: id,
+    })
+
+    hideLoading()
+
+    if (err) {
+      showToast({
+        title: err
+      })
+
+      return
+    }
+
+    showToast({
+      title: `删除[${ v.nickName }]成功`,
+      icon: 'success'
+    })
   }
 
   // 解散小组
@@ -238,7 +274,7 @@ export default class Page extends Component {
     const teamData = data[id]
 
     if (!teamData) {
-      return null
+      return <Loading />
     }
 
     return (
@@ -247,25 +283,31 @@ export default class Page extends Component {
           <Panel title = { groupName } collapse />
           <Layout padding = { [56, 0, 60] }>
             {
-              member.map((v, i) => (
-                <Card
-                  avatar = { v.avatarUrl }
-                  nickName = { v.nickName }
-                  isCreator = { v.isGroupLeader === '1' }
+              !teamData || teamData.get_member_data_loading ?
+                <Loading /> :
+                  teamData.get_member_data_msg ?
+                    <Fail title = { teamData.get_member_data_msg } /> :
+                    member.map((v, i) => (
+                      <Card
+                        avatar = { v.avatarUrl }
+                        nickName = { v.nickName }
+                        isCreator = { v.isGroupLeader === '1' }
 
-                  onClick = { this.handleMemberClick.bind(this, v, i) }
+                        onClick = { this.handleMemberClick.bind(this, v, i) }
 
-                  key = { i }
-                />
-              ))
+                        key = { i }
+                      />
+                    ))
             }
           </Layout>
         </View>
 
         {
-          teamData.creator === user.id ?
-            <Btn onClick = { this.handleDelete }>解散该小组</Btn> :
-            <Btn onClick = { this.handleQuit }>退出该小组</Btn>
+          !teamData || teamData.get_member_data_loading || teamData.get_member_data_msg ?
+            null :
+            teamData.creator === user.id ?
+              <Btn onClick = { this.handleDelete }>解散该小组</Btn> :
+              <Btn onClick = { this.handleQuit }>退出该小组</Btn>
         }
       </View>
     )

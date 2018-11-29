@@ -24,7 +24,8 @@ export function getTeam (
   {
     isRefresh,
     ignoreCache,
-    teamId
+    teamId,
+    r
   } = {}
 ) {
   return async (dispatch, getState) => {
@@ -149,12 +150,15 @@ export function getTeam (
 
     } else {
 
-      // 没有小组跳转到创建小组页面
-      reLaunch({
-        url: '/pages/create_team/index?r=/pages/my_task/index'
-      })
+      if (r !== false) {
+        // 没有小组跳转到创建小组页面
+        reLaunch({
+          url: '/pages/create_team/index'
+        })
 
-      showToast({ title: '没有小组呀' })
+        showToast({ title: '没有小组呀' })
+      }
+
 
     }
 
@@ -678,7 +682,7 @@ export function addTeamMember (payload = {}, id) {
  * @param  {Object} payload [请求参数]
  * @return {[err, res]}
  */
-export function removeTeamMember (payload = {}) {
+export function removeTeamMember (payload = {}, id) {
   return async (dispatch, getState) => {
     const {
       remove_team_member_loading: loading
@@ -687,5 +691,22 @@ export function removeTeamMember (payload = {}) {
     if (loading) {
       return ['重复请求']
     }
+
+    dispatch(actionCreator.removeTeamMemberLoading())
+
+    const [err, res] = await ajax(url.server + api.team.remove, payload)
+
+    dispatch(actionCreator.removeTeamMemberLoaded())
+
+    if (err) {
+      dispatch(actionCreator.removeTeamMemberFail(payload))
+
+      return [err]
+    }
+
+    await dispatch(actionCreator.removeTeamMemberSuccess())
+    await dispatch(getTeamMember({}, { teamId: id, isRefresh: true }))
+
+    return [null, res]
   }
 }

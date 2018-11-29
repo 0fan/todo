@@ -88,8 +88,20 @@ export default class Page extends Component {
   // 长按删除
   handleLongPress = async (v, i, e) => {
     const {
+      user: {
+        id,
+      },
       removeTeamTask
     } = this.props
+
+    // // 是否是小组创建者
+    const isTeamCreator = v.userGroup.creator === id
+    // // 是否是任务创建者
+    const isTaskCreator = v.creator === id
+
+    if (!isTeamCreator || !isTaskCreator) {
+      return
+    }
 
     const sure = await showModal({ content: '确认删除此任务吗?' })
 

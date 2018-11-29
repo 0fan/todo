@@ -3,7 +3,7 @@ import { View, Text, Input, Textarea } from '@tarojs/components'
 
 import cs from 'classnames'
 
-import style from './index.less'
+import './index.less'
 
 export default class App extends Component {
   constructor (props) {
